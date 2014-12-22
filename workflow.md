@@ -25,17 +25,172 @@ Since POI is the approved datasource for Alaska, NPP needs to either
 I'm assuming Option 1 is neither possible nor desired.
 
 ##Option 2
-With option 2 there needs to be some mechanism for communicating the state
-(approved, denied, pending) of a features created in NPP, as well as the state
-of a change request to an existing feature.  For example, if a NPP user wants to change
-the name of an approved feature, the original (approved) name should be used until the new
-name is approved.  Tools that pull data from NPP must pull only approved
-features, or the approved state of a feature before all unapproved changes.  Syncing tools
-must be able to communicate not only the current state of features, but also the disposition
-of all change requests, and modify features appropriately, preserving the transactions.
-For example, A NPP user should be able to see that a request to change the name was
-submitted, reviewed, and then denied. Option 2 seems like a very complicated choice, and isn't
-persued any further.
+
+### Work Flow Starting points
+
+
+1) AKR makes changes to `POI_PT`
+
+* DB trigger logs changes in `POI_PT_ChangeLog_For_NPPlaces`
+
+2) AKR periodically reviews open issues in `POI_PT_ChangeRequest_For_NPPlaces`
+
+* Action on a change request is logged in `POI_PT_ChangeRequestAction_For_NPPlaces` (An open change request is one without a related Change Request Action)
+* Action may result in a change to POI_PT (see item 1 above)
+
+3) Places user edits feature
+  * If the user is trying to edit the AKR_* attributes, reject that part of the change
+  * If the feature is a point within AKR, then 
+    + new features:
+        - Submit change request to AKR (SR#1) and receive a Request_Id
+      - Save Request_Id in the AKR_Request_Id attribute
+        ~ If the request fails, then place the sentinal "Pending" (-1) in AKR_Request_Id, and archive the request body in AKR_Request_JSON
+      - Set AKR_Approved_State to some sentinal value to indicate that this feature is new (i.e. it does not have an approved state)
+    + Delete existing Feature with AKR_Request_Id
+      - Alert the user that multiple change requests are not supported
+        ~ Suggest workaround (revert the feature to the AKR_Approved_State, and then delete) to user
+      - Abort delete
+    + Delete existing feature (without AKR_Request_Id):
+        - Submit change request to AKR (SR#1) and receive a Request_Id
+      - Save Request_Id in the AKR_Request_Id attribute
+        ~ If the request fails, then place the sentinal "Pending" (-1) in AKR_Request_Id, and archive the request body in AKR_Request_JSON
+      - Set AKR_Approved_State to the undeleted state (or some "still alive" sentinal)
+    + Change (Name, Type, Geometry) of existing Feature with AKR_Request_Id
+      - Alert the user that multiple change requests are not supported
+        ~ Suggest workaround (revert the feature to the AKR_Approved_State, and then make new edits) to user
+      - Abort changes to (Name, Type, Geometry)
+    + Change (Name, Type, Geometry) of existing feature (without AKR_Request_Id):
+      - Submit change request to AKR (SR#1) and receive a Request_Id
+      - Save Request_Id in the AKR_Request_Id attribute
+        ~ If the request fails, then place the sentinal "Pending" (-1) in AKR_Request_Id, and archive the request body in AKR_Request_JSON
+      - Set AKR_Approved_State to the unedited state
+  * Make the requested edits
+
+4) Places user reverts feature to approved state
+  * if feature has no AKR_Request_Id or no AKR_Approved_State, then abort
+  * Revert the feature to the AKR_Approved_State and clear AKR_Approved_State
+  * if AKR_Request_Id is "Cancel Pending" (-2) then abort
+  * if AKR_Request_Id is "Pending" (-1), then clear AKR_Request_Id
+  * Otherwise
+    + submit cancel change request (SR#1)
+      - for id, use AKR_Feature_Id if it exists, otherwise use the NP_Places_Id
+      - If the request fails, then place the sentinal "Cancel Pending" (-2) in AKR_Request_Id, and archive the request body in AKR_Request_JSON
+      - If the request succeeds, clear AKR_Request_Id
+  
+5) Places system sync event (periodically run as cron job)
+  * Check on outstanding requests by finding all features (including deleted) in Places with an AKR_Request_Id
+    + If the id is 'Cancel Pending' (-2) then resubmit the change request (SR#1)
+      - the body of the change request is archived in AKR_Request_JSON
+      - if the submit succeeds, then clear AKR_Request_JSON and AKR_Request_Id
+    + If the id is 'Pending' (-1) then resubmit the change request (SR#1)
+      - the body of the change request is archived in AKR_Request_JSON
+      - if the submit succeeds, then clear AKR_Request_JSON and save the returned request_Id in AKR_Request_Id
+    + For other non-null ids, get the status of the change request (SR#2)
+      - If the status is 'denied'
+        ~ optional: create new attribute with denied comment and the requested state
+        ~ revert the feature to the state pointed to by AKR_Approved_State
+        ~ clear the AKR_Request_Id and AKR_Approved_State
+      - If the status is 'approved', Clear the AKR_Request_Id and AKR_Approved_State (feature will be updated in the next step)
+      - If the status is 'partially approved' treat as denied  (feature will be updated in the next step)
+      - Status should not be 'cancelled', but if it is, treat as denied
+      - If the status is open (i.e. no related actions), then no action is required.
+  * Incorporate AKR changes
+    + Get the list of Feature Ids for all adds/deletes/updates since the last sync from the ChangeLog Service (SR#3)
+    + For each AKR_Feature_Id in 'adds'
+      - get the features new properties (SR#4)
+      - if the feature has a Places ID (it originated in Places)
+        ~ find the features in Places
+        ~ update the AKR_Feature_Id
+        ~ It had a AKR_Request_Id when it was created, so it is unlikely that there is a new change on the feature since it was approved 
+      - otherwise, create a new feature in Places
+    + For each AKR_Feature_Id in 'deletes'
+      - find the features in Places
+      - the feature may already be deleted if this delete is in response to a request from Places
+      - if the feature has an AKR_Request_Id, then update the AKR_Approved_State to deleted
+      - otherwise, 'delete' the feature.
+    + For each AKR_Feature_Id in 'updates'
+      - get the features new properties (SR#4)
+      - if the feature has an AKR_Request_Id, then update the AKR_Approved_State with the new properties
+      - otherwise, update the current state of the feature to the new properties 
+
+
+### NPP Should
+  * Symbolize (or somehow identify) any feature with an AKR_Approved_State (and/or AKR_Request_Id) that the current state (Type, Name, Geometry) is not approved
+  * Provide the user with the ability to see the AKR_Approved_State
+  * Provide the user with the ability to revert a feature to the AKR_Approved_State
+
+### NPP Must
+  * Use the AKR_Approved_State (when present) when deriving products (i.e Park Tiles)
+
+### Special attributes
+
+These attributes will be added to NPP features as described above. 
+They should be a system attributes, or at least hidden from the user to prevent data corruption
+
+  * `AKR_Request_Id` - It will be a 32bit signed int (limit 2e9 changes)
+  * `AKR_Approved_State` is a tuple of (Type, Name, and Geometry), all other Places attributes are free to change without AKR approval
+  * `AKR_Feature_Id` is a GUID string
+  * `AKR_Request_JSON` is text formated as the JSON body for SR#1, saved to resubmit when the original POST failed.
+
+### Services
+The following HTTP end points will be provided by AKR to support the workflow above
+
+####SR#1
+`POST request`
+
+Request:
+
+    {
+        'requestor': <name/id of requestor>,
+        'operation': <one of 'add', 'delete', 'update', 'cancel'>
+        'feature' : {
+            'id' : <The NP Places ID for adds, and the AKR feature ID for all others>,
+            'name' : <name as text>,
+            'type' : <type as tex>,
+            'geometry : <esri JSON geometry object>
+        }
+    }
+
+`feature` does not require all the attributes shown.
+When the operation is `delete` only an `AKR_Feature_Id` is required.
+`cancel` requires the id (AKR or NP Places) provided with the original request.
+`add` requires `NP_Places_feature_id`, `name`, `type`, and `geometry`.
+`update` requires an `AKR_Feature_Id`, and one or more of `name`, `type`, `geometry`.
+
+Response:
+
+    200 {'id' : <newly created request_id>}
+    4xx {'code' : <error code>, 'message' : <error message>} 
+
+####SR#2
+`GET request/<request_id>`
+
+Response:
+
+    200 {'status' : <one of 'open', 'approved', 'partially approved', 'denied', 'cancelled'>,
+        'comment' : <optional text explaining denial or partial approval>}
+    4xx {'code' : <error code>, 'message' : <error message>} 
+
+####SR#3
+`GET changes?since=iso-date`
+
+Response:
+
+    200 {adds:['id1',...], deletes:['id1',...], updates:['id1',...]}
+    4xx {'code' : <error code>, 'message' : <error message>} 
+
+The lists contain AKR_Feature_Ids.
+
+####SR#4
+`GET feature/<AKR_Feature_Id>`
+
+Response:
+
+    200 {'id' : <The NP Places ID if one exists>,
+       'name' : <name as text>,
+        'type' : <type as text>,
+        'geometry : <esri JSON geometry object>}
+    4xx {'code' : <error code>, 'message' : <error message>} 
 
 ##Option 3
 
