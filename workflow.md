@@ -136,9 +136,9 @@ They should be a system attributes, or at least hidden from the user to prevent 
 The following HTTP end points will be provided by AKR to support the workflow above
 
 ####SR#1
-`POST request`
+`POST poi/request`
 
-Request:
+Request body:
 
     {
         'requestor': <name/id of requestor>,
@@ -159,38 +159,57 @@ When the operation is `delete` only an `AKR_Feature_Id` is required.
 
 Response:
 
-    200 {'id' : <newly created request_id>}
-    4xx {'code' : <error code>, 'message' : <error message>} 
+    201 Created
+        {'id' : <newly created request_id>}
+    403 Forbidden
+        {'code' : 200, 'error' : 'Missing Request Key', 'msg' : <varies>}
+        {'code' : 201, 'error' : 'Missing Request Value', 'msg' : <varies>}
+        {'code' : 202, 'error' : 'Invalid Request Value', 'msg' : <varies>}
+    500 Internal Server Error
+        {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
 
 ####SR#2
-`GET request/<request_id>`
+`GET poi/request/<request_id>`
 
 Response:
 
-    200 {'status' : <one of 'open', 'approved', 'partially approved', 'denied', 'cancelled'>,
-        'comment' : <optional text explaining denial or partial approval>}
-    4xx {'code' : <error code>, 'message' : <error message>} 
-
+    200 OK
+        {'status'  : <one of 'open', 'approved', 'partially approved', 'denied', 'cancelled'>,
+         'comment' : <optional text explaining denial or partial approval>}
+    404 Not Found
+    500 Internal Server Error
+        {'code' : 102, 'error' : 'Database Error', 'msg' : <varies> }         
+    
 ####SR#3
-`GET changes?since=iso-date`
+`GET poi/changes?since=iso-date`
 
 Response:
 
-    200 {adds:['id1',...], deletes:['id1',...], updates:['id1',...]}
-    4xx {'code' : <error code>, 'message' : <error message>} 
+    200 OK
+        {'adds'    : ['id1',...],
+         'deletes' : ['id1',...],
+         'updates' : ['id1',...]}
+    403 Forbidden
+        {'code' : 101, 'error' : 'Invalid parameter', 'msg' : 'Not a valid date'} 
+    500 Internal Server Error
+        {'code' : 102, 'error' : 'Database Error', 'msg' : <varies> }         
 
 The lists contain AKR_Feature_Ids.
 
 ####SR#4
-`GET feature/<AKR_Feature_Id>`
+`GET poi/feature/<AKR_Feature_Id>`
 
 Response:
 
-    200 {'id' : <The NP Places ID if one exists>,
-       'name' : <name as text>,
-        'type' : <type as text>,
-        'geometry : <esri JSON geometry object>}
-    4xx {'code' : <error code>, 'message' : <error message>} 
+    200 OK
+        {'id'      : <The NP Places ID if one exists>,
+         'name'    : <name as text>,
+         'type'    : <type as text>,
+         'geometry : <esri JSON geometry object>}
+    404 Not Found
+    500 Internal Server Error
+        {'code' : 102, 'error' : 'Database Error', 'msg' : <varies> }         
+    
 
 ##Option 3
 
