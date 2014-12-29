@@ -178,7 +178,7 @@ Response:
          'comment' : <optional text explaining denial or partial approval>}
     404 Not Found
     500 Internal Server Error
-        {'code' : 102, 'error' : 'Database Error', 'msg' : <varies> }         
+        {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
     
 ####SR#3
 `GET poi/changes?since=iso-date`
@@ -192,7 +192,7 @@ Response:
     403 Forbidden
         {'code' : 101, 'error' : 'Invalid parameter', 'msg' : 'Not a valid date'} 
     500 Internal Server Error
-        {'code' : 102, 'error' : 'Database Error', 'msg' : <varies> }         
+        {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
 
 The lists contain AKR_Feature_Ids.
 
@@ -208,7 +208,7 @@ Response:
          'geometry : <esri JSON geometry object>}
     404 Not Found
     500 Internal Server Error
-        {'code' : 102, 'error' : 'Database Error', 'msg' : <varies> }         
+        {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
     
 
 ##Option 3

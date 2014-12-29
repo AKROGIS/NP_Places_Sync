@@ -1,7 +1,8 @@
 //"use strict";
 const port = parseInt(process.argv[2], 10) || 8081;
-const Http = require('http');
-const Url = require('url');
+const http = require('http');
+const url = require('url');
+const poiDb = require('./poi-db');
 
 const dateTime = {
 	'description' : 'A date/time.  Must be in RFC2822 or ISO 8601 format',
@@ -21,27 +22,36 @@ const api = {
 			},
 			'code' : function (options, response) {
 				time = new Date(options['since']);
-				returnJSON(response, {
-					'timestamp' : time
-				});
+				answer = poiDb.getChanges(time);
+				if (answer.errorcode) {
+					returnError(response, answer.errorCode, answer.errorMessage);
+				} else {
+					returnJSON(response, answer);
+				}			
 			}
 		},				
 		'/poi/feature/<id>' : {
 			'description' : 'Provides a JSON object describing a specific feature',
 			'parameters' : {},
 			'code' : function (options, response) {
-				returnJSON(response, {
-					'id' : this.id
-				});
+				answer = poiDb.getFeature(this.id);
+				if (answer.errorcode) {
+					returnError(response, answer.errorCode, answer.errorMessage);
+				} else {
+					returnJSON(response, answer);
+				}			
 			}
 		},
 		'/poi/request/<id>' : {
 			'description' : 'Provides a JSON object describing a specific request',
 			'parameters' : {},
 			'code' : function (options, response) {
-				returnJSON(response, {
-					'id' : this.id
-				});
+				answer = poiDb.getRequest(this.id);
+				if (answer.errorcode) {
+					returnError(response, answer.errorCode, answer.errorMessage);
+				} else {
+					returnJSON(response, answer);
+				}			
 			}
 		},
 		'/poi' : {
@@ -57,7 +67,12 @@ const api = {
 			'description' : 'Submit a new request',
 			'parameters' : {},
 			'code' : function (options, response) {
-				returnNotImplemented(response);
+				answer = poiDb.getRequest(this.id);
+				if (answer.errorcode) {
+					returnError(response, answer.errorCode, answer.errorMessage);
+				} else {
+					returnJSON(response, {id:answer.featureId});
+				}			
 			}
 		}
 	}
@@ -166,16 +181,13 @@ function getCommand(commands, name) {
 	return command;
 }
 
-Http.createServer(function (request, response) {
+http.createServer(function (request, response) {
 	var commands = api[request.method];
 	if (commands) {
-		var urlParts = Url.parse(request.url, true);
+		var urlParts = url.parse(request.url, true);
 		var commandName = urlParts.pathname.toLowerCase();
-		console.log(commandName)
 		var command = getCommand(commands, commandName);
-	console.log(command);
 		if (command) {
-			console.log(command)
 			var params = urlParts.query
 			if (validate(command,params,response)) {
 				command.code(params, response);
@@ -183,6 +195,5 @@ Http.createServer(function (request, response) {
 			return;
 		}
 	}
-	console.log('not found');
 	returnNotFound(response);
 }).listen(port);
