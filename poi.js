@@ -21,24 +21,27 @@ const api = {
 			},
 			'code' : function (options, response) {
 				time = new Date(options['since']);
-				returnNotImplemented(response);
+				returnJSON(response, {
+					'timestamp' : time
+				});
 			}
 		},				
 		'/poi/feature/<id>' : {
 			'description' : 'Provides a JSON object describing a specific feature',
 			'parameters' : {},
 			'code' : function (options, response) {
-				//returnJSON(response, {
-				//	'unixtime' : Date.parse(options['iso'])
-				//});
-				returnNotImplemented(response);
+				returnJSON(response, {
+					'id' : this.id
+				});
 			}
 		},
 		'/poi/request/<id>' : {
 			'description' : 'Provides a JSON object describing a specific request',
 			'parameters' : {},
 			'code' : function (options, response) {
-				returnNotImplemented(response);
+				returnJSON(response, {
+					'id' : this.id
+				});
 			}
 		},
 		'/poi' : {
@@ -50,7 +53,7 @@ const api = {
 		}
 	},
 	'POST' : {
-		'poi/request' : {
+		'/poi/request' : {
 			'description' : 'Submit a new request',
 			'parameters' : {},
 			'code' : function (options, response) {
@@ -119,13 +122,60 @@ function validate(command, params, response) {
 	return true;
 }
 
+function isKey(str) {
+	return (str[0] === '<' && str.slice(-1) === '>') ? str.slice(1,-1) : false;
+}
+
+function checkCommand(commandName, command, givenName) {	
+	var commandParts = commandName.split('/');
+	var givenParts = givenName.split('/');
+	if (commandParts.length != givenParts.length) {
+		return undefined
+	}
+	var newCommand = {}
+	for (var i=0; i < commandParts.length; i++) {
+		if (commandParts[i] == givenParts[i]) {
+			continue;
+		}
+		var key = isKey(commandParts[i])
+		if (!key) {
+			return undefined;
+		}
+		newCommand[key] = givenParts[i];
+	}
+	// We matched, add this commands properties to the new command and return it
+	Object.keys(command).forEach( function (key) {
+		newCommand[key] = command[key];
+	});
+	return newCommand;
+}
+
+function getCommand(commands, name) {
+	var command = commands[name];
+	if (command) {
+		return command;
+	}
+	// Simple string match failed, look for matches using replacement for <*> in command
+	// add the matches to the command as new properties
+	var commandNames = Object.keys(commands)
+	var command
+	commandNames.some( function (commandName) {
+		command = checkCommand(commandName, commands[commandName], name);
+		return command;
+	});
+	return command;
+}
+
 Http.createServer(function (request, response) {
 	var commands = api[request.method];
 	if (commands) {
 		var urlParts = Url.parse(request.url, true);
 		var commandName = urlParts.pathname.toLowerCase();
-		var command = commands[commandName];
+		console.log(commandName)
+		var command = getCommand(commands, commandName);
+	console.log(command);
 		if (command) {
+			console.log(command)
 			var params = urlParts.query
 			if (validate(command,params,response)) {
 				command.code(params, response);
@@ -133,5 +183,6 @@ Http.createServer(function (request, response) {
 			return;
 		}
 	}
+	console.log('not found');
 	returnNotFound(response);
 }).listen(port);
