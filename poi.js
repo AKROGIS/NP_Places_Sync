@@ -22,36 +22,39 @@ const api = {
 			},
 			'code' : function (options, response) {
 				time = new Date(options['since']);
-				answer = poiDb.getChanges(time);
-				if (answer.errorcode) {
-					returnError(response, answer.errorCode, answer.errorMessage);
-				} else {
-					returnJSON(response, answer);
-				}			
+				poiDb.getChanges(time, function(error, results) {
+					if (error) {
+						returnError(response, error.errorCode, error.errorMessage);
+					} else {
+						returnJSON(response, results);
+					}			
+				});
 			}
 		},				
 		'/poi/feature/<id>' : {
 			'description' : 'Provides a JSON object describing a specific feature',
 			'parameters' : {},
 			'code' : function (options, response) {
-				answer = poiDb.getFeature(this.id);
-				if (answer.errorcode) {
-					returnError(response, answer.errorCode, answer.errorMessage);
-				} else {
-					returnJSON(response, answer);
-				}			
+				poiDb.getFeature(this.id, function(error, results) {
+					if (error) {
+						returnError(response, error.errorCode, error.errorMessage);
+					} else {
+						returnJSON(response, results);
+					}			
+				});
 			}
 		},
 		'/poi/request/<id>' : {
 			'description' : 'Provides a JSON object describing a specific request',
 			'parameters' : {},
 			'code' : function (options, response) {
-				answer = poiDb.getRequest(this.id);
-				if (answer.errorcode) {
-					returnError(response, answer.errorCode, answer.errorMessage);
-				} else {
-					returnJSON(response, answer);
-				}			
+				poiDb.getRequest(this.id, function(error, results) {
+					if (error) {
+						returnError(response, error.errorCode, error.errorMessage);
+					} else {
+						returnJSON(response, results);
+					}			
+				});
 			}
 		},
 		'/poi' : {
@@ -67,12 +70,13 @@ const api = {
 			'description' : 'Submit a new request',
 			'parameters' : {},
 			'code' : function (options, response) {
-				answer = poiDb.getRequest(this.id);
-				if (answer.errorcode) {
-					returnError(response, answer.errorCode, answer.errorMessage);
-				} else {
-					returnJSON(response, {id:answer.featureId});
-				}			
+				poiDb.postRequest(options.feature, function(error, results) {
+					if (error) {
+						returnError(response, error.errorCode, error.errorMessage);
+					} else {
+						returnJSON(response, results);
+					}			
+				});
 			}
 		}
 	}
@@ -171,7 +175,7 @@ function getCommand(commands, name) {
 		return command;
 	}
 	// Simple string match failed, look for matches using replacement for <*> in command
-	// add the matches to the command as new properties
+	// add the matching data to the command as new properties
 	var commandNames = Object.keys(commands)
 	var command
 	commandNames.some( function (commandName) {
