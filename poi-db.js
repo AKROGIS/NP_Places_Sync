@@ -17,7 +17,7 @@ poi.getChanges = function (timestamp, callback) {
 
 	sqlGetChanges({ isoDate: timestamp }, function (error, result) {
 		if (error) {
-			callback({errorCode : 300, errorMessage : error.message});
+			return callback({errorCode : 300, errorMessage : error.message});
 		}
     var answer = {'deletes':[], 'adds':[], 'updates':[]};
     result.forEach(function(row) {
@@ -43,9 +43,9 @@ poi.getRequest = function (requestId, callback) {
 		ORDER BY TimeStamp DESC
 	*/});
 
-	sqlGetRequest({ requestId: 9 }, function (error, result) {
+	sqlGetRequest({ requestId : requestId }, function (error, result) {
 		if (error) {
-			callback({errorCode : 300, errorMessage : error.message});
+			return callback({errorCode : 300, errorMessage : error.message});
 		}
 		if (result.length == 0) {
 		    callback (null, null);
