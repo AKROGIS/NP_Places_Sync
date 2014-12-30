@@ -20,7 +20,7 @@ const api = {
 			'parameters' : {
 				'since' : dateTime
 			},
-			'code' : function (options, response) {
+			'code' : function (request, options, response) {
 				time = new Date(options['since']);
 				poiDb.getChanges(time, function(error, results) {
 					if (error) {
@@ -34,7 +34,7 @@ const api = {
 		'/poi/feature/<id>' : {
 			'description' : 'Provides a JSON object describing a specific feature',
 			'parameters' : {},
-			'code' : function (options, response) {
+			'code' : function (request, options, response) {
 				poiDb.getFeature(this.id, function(error, results) {
 					if (error) {
 						returnError(response, error.errorCode, error.errorMessage);
@@ -51,7 +51,7 @@ const api = {
 		'/poi/request/<id>' : {
 			'description' : 'Provides a JSON object describing a specific request',
 			'parameters' : {},
-			'code' : function (options, response) {
+			'code' : function (request, options, response) {
 				poiDb.getRequest(this.id, function(error, results) {
 					if (error) {
 						returnError(response, error.errorCode, error.errorMessage);
@@ -68,7 +68,7 @@ const api = {
 		'/poi' : {
 			'description' : 'Provides a JSON object describing the REST API for AKR Place of Interest',
 			'parameters' : {},
-			'code' : function (options, response) {
+			'code' : function (request, options, response) {
 				returnJSON(response, api);
 			}
 		}
@@ -77,30 +77,53 @@ const api = {
 		'/poi/request' : {
 			'description' : 'Submit a new request',
 			'parameters' : {},
-			'code' : function (options, response) {
-				poiDb.postRequest(options.feature, function(error, results) {
-					if (error) {
-						returnError(response, error.errorCode, error.errorMessage);
-					} else {
-						returnJSON(response, results);
-					}			
-				});
+			'code' : function (request, options, response) {
+        processPost(request, response, function () {
+          poiDb.postRequest(request.postBody, function(error, results) {
+            if (error) {
+              returnError(response, error.errorCode, error.errorMessage);
+            } else {
+              returnJSON(response, results);
+            }			
+          });
+        });
 			}
 		}
 	}
 };
 
+function processPost(request, response, callback) {
+    var postBody = "";
+    if(typeof callback !== 'function') return null;
+    request.setEncoding('utf8');
+    
+    request.on('data', function(data) {
+        postBody += data;
+        if(postBody.length > 1e6) {
+            postBody = "";
+            response.writeHead(413).end();
+            request.connection.destroy();
+        }
+    });
+
+    request.on('end', function() {
+        request.postBody = postBody;
+        callback();
+    });
+}
+
+
 function returnError(response, number, msg) {
-    var errors = {
-        '100' : 'Request did not contain a required parameter',
-        '101' : 'Invalid parameter',
-        '200' : 'Missing Request Key',
-        '201' : 'Missing Request Value',
-        '202' : 'Invalid Request Value',
-        '300' : 'Database Error'
-    }
-    error = errors[number] || 'unknown'
-    status = (300 <= number || error === 'unknown') ? 500 : 403
+  var errors = {
+      '100' : 'Request did not contain a required parameter',
+      '101' : 'Invalid parameter',
+      '200' : 'Malformed request body',
+      '201' : 'Missing value in request body',
+      '202' : 'Invalid value in request body',
+      '300' : 'Database error'
+  }
+  error = errors[number] || 'unknown'
+  status = (300 <= number || error === 'unknown') ? 500 : 403
 	response.writeHead(status, { 'Content-Type': 'application/json' })
 	response.end(JSON.stringify({
 		'code' : number,
@@ -202,7 +225,7 @@ http.createServer(function (request, response) {
 		if (command) {
 			var params = urlParts.query
 			if (validate(command,params,response)) {
-				command.code(params, response);
+				command.code(request, params, response);
 			}
 			return;
 		}

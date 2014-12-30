@@ -141,7 +141,7 @@ The following HTTP end points will be provided by AKR to support the workflow ab
 Request body:
 
     {
-        'requestor': <name/id of requestor>,
+        'requestor': <name/id of requestor (must be a string or number)>,
         'operation': <one of 'add', 'delete', 'update', 'cancel'>
         'feature' : {
             'id' : <The NP Places ID for adds, and the AKR feature ID for all others>,
@@ -162,11 +162,11 @@ Response:
     201 Created
         {'id' : <newly created request_id>}
     403 Forbidden
-        {'code' : 200, 'error' : 'Missing Request Key', 'msg' : <varies>}
-        {'code' : 201, 'error' : 'Missing Request Value', 'msg' : <varies>}
-        {'code' : 202, 'error' : 'Invalid Request Value', 'msg' : <varies>}
+        {'code' : 200, 'error' : 'Malformed request body', 'msg' : <varies>}
+        {'code' : 201, 'error' : 'Missing value in request body', 'msg' : <varies>}
+        {'code' : 202, 'error' : 'Invalid value in request body', 'msg' : <varies>}
     500 Internal Server Error
-        {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
+        {'code' : 300, 'error' : 'Database error', 'msg' : <varies> }         
 
 ####SR#2
 `GET poi/request/<request_id>`
@@ -178,7 +178,7 @@ Response:
          'comment' : <optional text explaining denial or partial approval>}
     404 Not Found
     500 Internal Server Error
-        {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
+        {'code' : 300, 'error' : 'Database error', 'msg' : <varies> }         
     
 ####SR#3
 `GET poi/changes?since=iso-date`
@@ -192,7 +192,7 @@ Response:
     403 Forbidden
         {'code' : 101, 'error' : 'Invalid parameter', 'msg' : 'Not a valid date'} 
     500 Internal Server Error
-        {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
+        {'code' : 300, 'error' : 'Database error', 'msg' : <varies> }         
 
 The lists contain AKR_Feature_Ids.
 
@@ -208,7 +208,7 @@ Response:
          'geometry' : <esri JSON geometry object>}
     404 Not Found
     500 Internal Server Error
-        {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
+        {'code' : 300, 'error' : 'Database error', 'msg' : <varies> }         
     
 
 ##Option 3
