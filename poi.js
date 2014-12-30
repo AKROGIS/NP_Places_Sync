@@ -39,7 +39,11 @@ const api = {
 					if (error) {
 						returnError(response, error.errorCode, error.errorMessage);
 					} else {
-						returnJSON(response, results);
+						if (results) {
+							returnJSON(response, results);
+						} else {
+							returnNotFound(response);
+						}
 					}			
 				});
 			}
@@ -52,7 +56,11 @@ const api = {
 					if (error) {
 						returnError(response, error.errorCode, error.errorMessage);
 					} else {
-						returnJSON(response, results);
+						if (results) {
+							returnJSON(response, results);
+						} else {
+							returnNotFound(response);
+						}
 					}			
 				});
 			}
