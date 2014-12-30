@@ -19,17 +19,13 @@ poi.getChanges = function (timestamp, callback) {
 		if (error) {
 			callback({errorCode : 300, errorMessage : error.message});
 		}
-		if (result.length == 0) {
-		    callback (null, null);
-		} else {
-			var answer = {'deletes':[], 'adds':[], 'updates':[]};
-			result.forEach(function(row) {
-				if (row.Operation == 'Delete') { answer.deletes.push(row.FeatureId);};
-				if (row.Operation == 'Insert') { answer.adds.push(row.FeatureId);};
-				if (row.Operation == 'Update') { answer.updates.push(row.FeatureId);};
-			});
-		    callback (null, answer);
-		}
+    var answer = {'deletes':[], 'adds':[], 'updates':[]};
+    result.forEach(function(row) {
+      if (row.Operation == 'Delete') { answer.deletes.push(row.FeatureId);};
+      if (row.Operation == 'Insert') { answer.adds.push(row.FeatureId);};
+      if (row.Operation == 'Update') { answer.updates.push(row.FeatureId);};
+    });
+    callback (null, answer);
 	});
 }
 
