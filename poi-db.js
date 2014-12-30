@@ -1,5 +1,8 @@
-var poi = exports
+var edge = require('edge');
+var http = require('http');
+
 //All callbacks should expect error and results parameters, typical of node.js
+var poi = exports
 
 poi.getChanges = function (timestamp, callback) {
 	if (!timestamp) {
