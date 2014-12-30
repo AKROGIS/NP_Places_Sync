@@ -31,8 +31,61 @@ poi.getChanges = function (timestamp, callback) {
 
 poi.getFeature = function (featureId, callback) {
 
+  // test: featureId = 'CB65B39F-FD14-4EC8-9B99-0BD27813F380'
+  
+  //Sanitize featureId to preclude URL corruption
+  if (!featureId.match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)) {
+    //console.log('Invalid format for featureId: ' + featureId);
+    return 	callback(null,null); //return an empty result => 404 error
+  }
 	// Query ArcGIS Server feature service
-	callback({errorCode : 300, errorMessage : 'No database connection'});
+  var service = 'http://inpakrovmais:6080/arcgis/rest/services/Places/FeatureServer/0/query'
+  var query = '?where=GlobalID%3D%27%7B' + featureId + '%7D%27&outFields=Place_Type%2CPlace_Name%2CSource_Database_ID_Value&outSR=4326&f=json'
+  url = service + query
+
+  http.get(url, function(res) {
+    if (res.statusCode != 200) {
+      console.log('Server response ' + res.statusCode + ' ' + res);
+      return callback({errorCode : 300, errorMessage : 'Failure communicating with feature service (http status code:'+res.statusCode+')'});
+    } else {
+      var str = "";
+      res.setEncoding('utf8');
+      res.on('data', function(data) { str += data; });
+      res.on('end', function() {
+        //console.log(str);
+        try {
+          data = JSON.parse(str)
+        }
+        catch (e) {
+          if (e instanceof SyntaxError) {
+            return callback({errorCode : 300, errorMessage : 'Malformed response (not valid JSON) from feature Service'});
+          } else {
+            var msg = 'Unexpected error processing feature service response as JSON: ' + e.name + ' - ' + e.message;
+            console.log(msg);
+            return callback({errorCode : 300, errorMessage : msg});
+          }
+        }
+        if (!data || !data.features) {
+          msg = 'Response from feature server was unexpected: ' + str;
+          console.log(msg);
+          return callback({errorCode : 300, errorMessage : msg});
+        }
+        if (data.features.length == 0) {
+          return callback(null,null);
+        }
+        answer = {
+          'id'      : data.features[0].attributes.Source_Database_ID_Value,
+          'name'    : data.features[0].attributes.Place_Name,
+          'type'    : data.features[0].attributes.Place_Type,
+          'geometry': data.features[0].geometry
+        };
+        callback (null, answer);      
+      });
+    }
+  }).on('error', function(e) {
+    console.log("Got error: " + e.message);
+    return callback({errorCode : 300, errorMessage : 'Failure communicating with feature service (http error message:' + e.message+')'});
+  });
 }
 
 poi.getRequest = function (requestId, callback) {
@@ -54,7 +107,7 @@ poi.getRequest = function (requestId, callback) {
 		  if (result[0].comment) {
 			answer.comment = result[0].comment
 		  }
-		    callback (null, answer);
+		  callback (null, answer);
 		}
 	});
 }

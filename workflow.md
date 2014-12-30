@@ -205,7 +205,7 @@ Response:
         {'id'      : <The NP Places ID if one exists>,
          'name'    : <name as text>,
          'type'    : <type as text>,
-         'geometry : <esri JSON geometry object>}
+         'geometry' : <esri JSON geometry object>}
     404 Not Found
     500 Internal Server Error
         {'code' : 300, 'error' : 'Database Error', 'msg' : <varies> }         
