@@ -1,4 +1,3 @@
-//"use strict";
 const port = parseInt(process.argv[2], 10) || 8081;
 const http = require('http');
 const url = require('url');
@@ -32,7 +31,7 @@ const api = {
 			}
 		},				
 		'/poi/feature/<id>' : {
-			'description' : 'Provides a JSON object describing a specific feature',
+			'description' : 'Returns a JSON object describing the feature identified',
 			'parameters' : {},
 			'code' : function (request, options, response) {
 				poiDb.getFeature(this.id, function(error, results) {
@@ -49,7 +48,7 @@ const api = {
 			}
 		},
 		'/poi/request/<id>' : {
-			'description' : 'Provides a JSON object describing a specific request',
+			'description' : 'Returns a JSON object describing the request identified',
 			'parameters' : {},
 			'code' : function (request, options, response) {
 				poiDb.getRequest(this.id, function(error, results) {
@@ -75,7 +74,7 @@ const api = {
 	},
 	'POST' : {
 		'/poi/request' : {
-			'description' : 'Submit a new request',
+			'description' : 'Submit a new change request.  Body of post must contain a JSON object describing the change',
 			'parameters' : {},
 			'code' : function (request, options, response) {
         processPost(request, response, function () {
