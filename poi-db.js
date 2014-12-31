@@ -14,10 +14,7 @@ poi.featureService = 'http://inpakrovmais:6080/arcgis/rest/services/Places/Featu
 poi.sqlServer = 'Data Source=inpakrovmais;Initial Catalog=akr_socio;Integrated Security=True'
 
 poi.getChanges = function (sinceTimeStamp, callback) {
-	if (!sinceTimeStamp) {
-		sinceTimeStamp = '2014-01-01'  //Beginning of time (for this project)
-	}
-
+	//Caller is responsible for providing a valid time stamp
 	var sqlGetChanges = require('edge').func('sql', {
     conectionString : poi.sqlServer,
     source : 

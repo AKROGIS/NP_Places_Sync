@@ -6,7 +6,7 @@ const poiDb = require('./poi-db');
 const dateTime = {
 	'description' : 'A date/time.  Must be in RFC2822 or ISO 8601 format',
 	'required' : false,
-	'defaultValue' : null,
+	'defaultValue' : '2014-01-01', //Beginning of time (for this project)
 	'validator' : function(param) {
 		return isNaN(new Date(param)) ? 'Not a valid date' : '' ;
 	}
