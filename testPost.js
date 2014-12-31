@@ -1,18 +1,18 @@
 var http = require('http');
 
 var options = {
-  hostname: 'localhost',
+  hostname: 'inpakrovmais.nps.doi.net',
   port: 8081,
   path: '/poi/change/request',
   method: 'POST'
 };
 
 var task = {
-  operation : 'delete',
+  operation : 'update',
   requestor : 'me',
   feature : {
-    id : 13 /*,
-    name : 'home',
+    id : 'abc123' ,
+    name : 'castle' /*,
     type : 'house',
     geometry : {
       x : -145.123,

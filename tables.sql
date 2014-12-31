@@ -32,7 +32,7 @@ GO
 CREATE TABLE [dbo].[POI_PT_ChangeRequest_For_NPPlaces](
 	[RequestId] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
 	[TimeStamp] [datetime2](7) NOT NULL,
-	[Operation] [nvarchar](10) NOT NULL,  -- {'Insert', 'Delete', 'Update', 'Cancel'}
+	[Operation] [nvarchar](10) NOT NULL,  -- {'add', 'update', 'delete', 'cancel'}
 	[Requestor] [nvarchar](255) NOT NULL,  -- ?? OSM Login, AD Login, SSID, Friendly Name ??
 	[FeatureJSON] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_POI_PT_ChangeRequest_For_NPPlaces] PRIMARY KEY CLUSTERED 
@@ -54,7 +54,7 @@ CREATE TABLE [dbo].[POI_PT_ChangeRequestAction_For_NPPlaces](
 	[ActionId] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
 	[TimeStamp] [datetime2](7) NOT NULL,
 	[RequestId] [int] NOT NULL,
-	[Action] [nvarchar](10) NOT NULL, -- Approve, Deny, Partial Approve, Canceled
+	[Action] [nvarchar](10) NOT NULL, -- {'open', 'approved', 'partially approved', 'denied', 'cancelled'}
 	[Reviewer] [nvarchar](50) NOT NULL,  -- ?? DB Login, , AD Login, SSID, Friendly Name ??
 	[Comment] [nvarchar](max) NULL,
  CONSTRAINT [PK_POI_PT_ChangeRequestAction_For_NPPlaces] PRIMARY KEY CLUSTERED 

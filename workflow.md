@@ -101,18 +101,21 @@ I'm assuming Option 1 is neither possible nor desired.
       - if the feature has a Places ID (it originated in Places)
         * find the features in Places
         * update the AKR_Feature_Id
-        * It had a AKR_Request_Id when it was created, so it is unlikely that there is a new change on the feature since it was approved 
+        * It had a AKR_Request_Id when it was created, so it is unlikely that there is a new change on the feature since it was approved
+        * __ISSUE__ if AKR partially approves the add (i.e. an add with changes), then I'm unsure how we should handle this.
+          AKR can eliminate the problem by doing an add, then an update        
       - otherwise, create a new feature in Places
+    + For each AKR_Feature_Id in 'updates'
+      - get the features new properties (SR#4)
+      - if the feature has an AKR_Request_Id, then update the AKR_Approved_State with the new properties
+      - otherwise, update the current state of the feature to the new properties 
     + For each AKR_Feature_Id in 'deletes'
       - find the features in Places
       - the feature may already be deleted if this delete is in response to a request from Places
       - if the feature has an AKR_Request_Id, then update the AKR_Approved_State to deleted
       - otherwise, 'delete' the feature.
-    + For each AKR_Feature_Id in 'updates'
-      - get the features new properties (SR#4)
-      - if the feature has an AKR_Request_Id, then update the AKR_Approved_State with the new properties
-      - otherwise, update the current state of the feature to the new properties 
-
+    + Adds, updates, deletes must be applied in this order. For example the same feature maybe created then updated or updated then deleted.
+      These operations in the opposite order make no sense.
 
 ### NPP Should
   * Symbolize (or somehow identify) any feature with an AKR_Approved_State (and/or AKR_Request_Id) that the current state (Type, Name, Geometry) is not approved
