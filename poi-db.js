@@ -14,8 +14,8 @@ poi.featureService = 'http://inpakrovmais:6080/arcgis/rest/services/Places/Featu
 poi.sqlServer = 'Data Source=inpakrovmais;Initial Catalog=akr_socio;Integrated Security=True'
 
 poi.getChanges = function (sinceTimeStamp, callback) {
-	//Caller is responsible for providing a valid time stamp
-	var sqlGetChanges = require('edge').func('sql', {
+  //Caller is responsible for providing a valid time stamp
+  var sqlGetChanges = require('edge').func('sql', {
     connectionString : poi.sqlServer,
     source : 
       "SELECT Operation, FeatureId \
@@ -24,10 +24,10 @@ poi.getChanges = function (sinceTimeStamp, callback) {
         ORDER BY Operation, TimeStamp"
   });
 
-	sqlGetChanges({ isoDate: sinceTimeStamp }, function (error, result) {
-		if (error) {
-			return callback({errorCode : 300, errorMessage : error.message});
-		}
+  sqlGetChanges({ isoDate: sinceTimeStamp }, function (error, result) {
+    if (error) {
+      return callback({errorCode : 300, errorMessage : error.message});
+    }
     var answer = {'deletes':[], 'adds':[], 'updates':[]};
     result.forEach(function(row) {
       if (row.Operation == 'Delete') { answer.deletes.push(row.FeatureId);};
@@ -35,7 +35,7 @@ poi.getChanges = function (sinceTimeStamp, callback) {
       if (row.Operation == 'Update') { answer.updates.push(row.FeatureId);};
     });
     callback (null, answer);
-	});
+  });
 }
 
 poi.getFeature = function (featureId, callback) {
@@ -45,9 +45,9 @@ poi.getFeature = function (featureId, callback) {
   //Sanitize featureId to preclude URL corruption
   if (!featureId.match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)) {
     //console.log('Invalid format for featureId: ' + featureId);
-    return 	callback(null,null); //return an empty result => 404 error
+    return   callback(null,null); //return an empty result => 404 error
   }
-	// Query ArcGIS Server feature service
+  // Query ArcGIS Server feature service
   var query = '?where=GlobalID%3D%27%7B' + featureId + '%7D%27&outFields=Place_Type%2CPlace_Name%2CSource_Database_ID_Value&outSR=4326&f=json'
   url = poi.featureService + query
 
@@ -98,33 +98,33 @@ poi.getFeature = function (featureId, callback) {
 
 poi.getRequest = function (requestId, callback) {
 
-	var sqlGetRequest = require('edge').func('sql', {
+  var sqlGetRequest = require('edge').func('sql', {
     connectionString : poi.sqlServer,
     source : 
       "SELECT TOP 1 Action AS status, Comment AS comment \
          FROM POI_PT_ChangeRequestStatus_For_NPPlaces \
-		    WHERE RequestId = @requestId \
-		    ORDER BY TimeStamp DESC"
+        WHERE RequestId = @requestId \
+        ORDER BY TimeStamp DESC"
   });
 
-	sqlGetRequest({ requestId : requestId }, function (error, result) {
-		if (error) {
-			return callback({errorCode : 300, errorMessage : error.message});
-		}
-		if (result.length == 0) {
-		    callback (null, null);
-		} else {
-		  var answer = { 'status' : (result[0].status ? result[0].status : 'open')}
-		  if (result[0].comment) {
-			answer.comment = result[0].comment
-		  }
-		  callback (null, answer);
-		}
-	});
+  sqlGetRequest({ requestId : requestId }, function (error, result) {
+    if (error) {
+      return callback({errorCode : 300, errorMessage : error.message});
+    }
+    if (result.length == 0) {
+        callback (null, null);
+    } else {
+      var answer = { 'status' : (result[0].status ? result[0].status : 'open')}
+      if (result[0].comment) {
+      answer.comment = result[0].comment
+      }
+      callback (null, answer);
+    }
+  });
 }
 
 poi.postRequest = function (request, callback) {
-	// Validate the request; returning appropriate error messages if necessary
+  // Validate the request; returning appropriate error messages if necessary
   var data
   try {
     data = JSON.parse(request)
@@ -204,7 +204,7 @@ poi.postRequest = function (request, callback) {
     }
   }
   
-	// Submit the request to the database
+  // Submit the request to the database
   //   A simple insert will not work since we need to return the auto generated request id
   //   I use a stored procedure that returns a record set (of 1) with the 'NewRequestId'
   var sqlInsertChangeRequest = require('edge').func('sql', {
@@ -213,13 +213,13 @@ poi.postRequest = function (request, callback) {
   });
 
   sqlInsertChangeRequest({ operation: operation, requestor: requestor, feature : JSON.stringify(feature)}, function (error, result) {
-		if (error) {
-			return callback({errorCode : 300, errorMessage : error.message});
-		}
-		if (result.length == 0) {
-			return callback({errorCode : 300, errorMessage : 'Insert failed to return an id; no error message provided'});
-		} else {
-		  callback (null, { 'id' : result[0].NewRequestId });
-		}
-	});
+    if (error) {
+      return callback({errorCode : 300, errorMessage : error.message});
+    }
+    if (result.length == 0) {
+      return callback({errorCode : 300, errorMessage : 'Insert failed to return an id; no error message provided'});
+    } else {
+      callback (null, { 'id' : result[0].NewRequestId });
+    }
+  });
 }
