@@ -1,21 +1,33 @@
-var edge = require('edge');
-var http = require('http');
+// Requires:
+//   npm install edge-sql
+//     Requires: 
+//       npm install edge
+//         Requires:
+//           .NET Framework 4.5 (Windows). or Mono 3.4.0 (MacOS or Linux)
+//           Node.js 0.8.x or later
 
-//All callbacks should expect error and results parameters, typical of node.js
+
+// All functions take a callback in the form function(error, results)
 var poi = exports
 
-poi.getChanges = function (timestamp, callback) {
-	if (!timestamp) {
-		timestamp = '2014-01-01'
+poi.featureService = 'http://inpakrovmais:6080/arcgis/rest/services/Places/FeatureServer/0/query'
+poi.sqlServer = 'Data Source=inpakrovmais;Initial Catalog=akr_socio;Integrated Security=True'
+
+poi.getChanges = function (sinceTimeStamp, callback) {
+	if (!sinceTimeStamp) {
+		sinceTimeStamp = '2014-01-01'  //Beginning of time (for this project)
 	}
 
-	var sqlGetChanges = edge.func('sql', function () {/*
-    select Operation, FeatureId from POI_PT_ChangeLog_For_NPPlaces 
-    where TimeStamp > @isoDate
-    Order By Operation, TimeStamp
-	*/});
+	var sqlGetChanges = require('edge').func('sql', {
+    conectionString : poi.sqlServer,
+    source : 
+      "SELECT Operation, FeatureId \
+         FROM POI_PT_ChangeLog_For_NPPlaces \
+        WHERE TimeStamp > @isoDate \
+        ORDER BY Operation, TimeStamp"
+  });
 
-	sqlGetChanges({ isoDate: timestamp }, function (error, result) {
+	sqlGetChanges({ isoDate: sinceTimeStamp }, function (error, result) {
 		if (error) {
 			return callback({errorCode : 300, errorMessage : error.message});
 		}
@@ -39,11 +51,10 @@ poi.getFeature = function (featureId, callback) {
     return 	callback(null,null); //return an empty result => 404 error
   }
 	// Query ArcGIS Server feature service
-  var service = 'http://inpakrovmais:6080/arcgis/rest/services/Places/FeatureServer/0/query'
   var query = '?where=GlobalID%3D%27%7B' + featureId + '%7D%27&outFields=Place_Type%2CPlace_Name%2CSource_Database_ID_Value&outSR=4326&f=json'
-  url = service + query
+  url = poi.featureService + query
 
-  http.get(url, function(res) {
+  require('http').get(url, function(res) {
     if (res.statusCode != 200) {
       console.log('Server response ' + res.statusCode + ' ' + res);
       return callback({errorCode : 300, errorMessage : 'Failure communicating with feature service (http status code:'+res.statusCode+')'});
@@ -90,11 +101,14 @@ poi.getFeature = function (featureId, callback) {
 
 poi.getRequest = function (requestId, callback) {
 
-	var sqlGetRequest = edge.func('sql', function () {/*
-		select TOP 1 Action AS status, Comment AS comment from POI_PT_ChangeRequestStatus_For_NPPlaces 
-		where RequestId = @requestId
-		ORDER BY TimeStamp DESC
-	*/});
+	var sqlGetRequest = require('edge').func('sql', {
+    conectionString : poi.sqlServer,
+    source : 
+      "SELECT TOP 1 Action AS status, Comment AS comment \
+         FROM POI_PT_ChangeRequestStatus_For_NPPlaces \
+		    WHERE RequestId = @requestId \
+		    ORDER BY TimeStamp DESC"
+  });
 
 	sqlGetRequest({ requestId : requestId }, function (error, result) {
 		if (error) {
@@ -193,9 +207,10 @@ poi.postRequest = function (request, callback) {
 	// Submit the request to the database
   //   A simple insert will not work since we need to return the auto generated request id
   //   I use a stored procedure that returns a record set (of 1) with the 'NewRequestId'
-  var sqlInsertChangeRequest = edge.func('sql', function () {/*
-    EXEC [dbo].[POI_PT_ChangeRequest_For_NPPlaces_Insert]
-  */});
+  var sqlInsertChangeRequest = require('edge').func('sql', {
+    conectionString : poi.sqlServer,
+    source : "EXEC [dbo].[POI_PT_ChangeRequest_For_NPPlaces_Insert]"
+  });
 
   sqlInsertChangeRequest({ operation: operation, requestor: requestor, feature : JSON.stringify(feature)}, function (error, result) {
 		if (error) {
