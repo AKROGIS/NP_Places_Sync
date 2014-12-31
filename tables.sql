@@ -33,7 +33,7 @@ CREATE TABLE [dbo].[POI_PT_ChangeRequest_For_NPPlaces](
 	[RequestId] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
 	[TimeStamp] [datetime2](7) NOT NULL,
 	[Operation] [nvarchar](10) NOT NULL,  -- {'Insert', 'Delete', 'Update', 'Cancel'}
-	[Requestor] [nvarchar](50) NOT NULL,  -- ?? OSM Login, AD Login, SSID, Friendly Name ??
+	[Requestor] [nvarchar](255) NOT NULL,  -- ?? OSM Login, AD Login, SSID, Friendly Name ??
 	[FeatureJSON] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_POI_PT_ChangeRequest_For_NPPlaces] PRIMARY KEY CLUSTERED 
 (

@@ -160,8 +160,11 @@ poi.postRequest = function (request, callback) {
     return callback({errorCode : 201, errorMessage : 'Value of "feature" is empty'});
   }
   var requestor = (typeof data.requestor === 'number') ? data.requestor.toString() : data.requestor;
+  if (typeof requestor === 'object') {
+    requestor = JSON.stringify(requestor);
+  }
   if (typeof requestor !== 'string') {
-    return callback({errorCode : 202, errorMessage : 'Value of "requestor" is not valid (must be a string or number)'});
+    return callback({errorCode : 202, errorMessage : 'Value of "requestor" is not valid (must be a string or object)'});
   }
   var operation = data.operation;
   if (typeof operation !== 'string') {
