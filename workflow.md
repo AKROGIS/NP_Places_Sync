@@ -136,7 +136,7 @@ They should be a system attributes, or at least hidden from the user to prevent 
 The following HTTP end points will be provided by AKR to support the workflow above
 
 ####SR#1
-`POST poi/request`
+`POST poi/change/request`
 
 Request body:
 
@@ -156,6 +156,7 @@ When the operation is `delete` only an `AKR_Feature_Id` is required.
 `cancel` requires the id (AKR or NP Places) provided with the original request.
 `add` requires `NP_Places_feature_id`, `name`, `type`, and `geometry`.
 `update` requires an `AKR_Feature_Id`, and one or more of `name`, `type`, `geometry`.
+If the geometry does not contain a `spatialreference` property, then WGS84 (`{'wkid' : 4326}`) is assumed.
 
 Response:
 
@@ -169,7 +170,7 @@ Response:
         {'code' : 300, 'error' : 'Database error', 'msg' : <varies> }         
 
 ####SR#2
-`GET poi/request/<request_id>`
+`GET poi/change/request/<request_id>/status`
 
 Response:
 
