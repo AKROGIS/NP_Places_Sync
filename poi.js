@@ -47,8 +47,8 @@ const api = {
 				});
 			}
 		},
-		'/poi/request/<id>' : {
-			'description' : 'Returns a JSON object describing the request identified',
+		'/poi/change/request/<id>/status' : {
+			'description' : 'Returns a JSON object describing the status of the change request identified',
 			'parameters' : {},
 			'code' : function (request, options, response) {
 				poiDb.getRequest(this.id, function(error, results) {
@@ -73,7 +73,7 @@ const api = {
 		}
 	},
 	'POST' : {
-		'/poi/request' : {
+		'/poi/change/request' : {
 			'description' : 'Submit a new change request.  Body of post must contain a JSON object describing the change',
 			'parameters' : {},
 			'code' : function (request, options, response) {

@@ -3,7 +3,7 @@ var http = require('http');
 var options = {
   hostname: 'localhost',
   port: 8081,
-  path: '/poi/request',
+  path: '/poi/change/request',
   method: 'POST'
 };
 
