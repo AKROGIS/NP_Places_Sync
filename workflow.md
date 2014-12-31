@@ -159,11 +159,13 @@ When the operation is `delete` only an `AKR_Feature_Id` is required.
 `add` requires `NP_Places_feature_id`, `name`, `type`, and `geometry`.
 `update` requires an `AKR_Feature_Id`, and one or more of `name`, `type`, `geometry`.
 If the geometry does not contain a `spatialreference` property, then WGS84 (`{'wkid' : 4326}`) is assumed.
+There is no limit on the size of the `feature` but the entire body must be less than 1,000,000 bytes,
+or it will be rejected.
 
 Response:
 
-    201 Created
-        {'id' : <newly created request_id>}
+    200 OK
+        {'id' : <newly created request_id (int)>}
     403 Forbidden
         {'code' : 200, 'error' : 'Malformed request body', 'msg' : <varies>}
         {'code' : 201, 'error' : 'Missing value in request body', 'msg' : <varies>}
