@@ -16,7 +16,7 @@ poi.sqlServer = 'Data Source=inpakrovmais;Initial Catalog=akr_socio;Integrated S
 poi.getChanges = function (sinceTimeStamp, callback) {
 	//Caller is responsible for providing a valid time stamp
 	var sqlGetChanges = require('edge').func('sql', {
-    conectionString : poi.sqlServer,
+    connectionString : poi.sqlServer,
     source : 
       "SELECT Operation, FeatureId \
          FROM POI_PT_ChangeLog_For_NPPlaces \
@@ -99,7 +99,7 @@ poi.getFeature = function (featureId, callback) {
 poi.getRequest = function (requestId, callback) {
 
 	var sqlGetRequest = require('edge').func('sql', {
-    conectionString : poi.sqlServer,
+    connectionString : poi.sqlServer,
     source : 
       "SELECT TOP 1 Action AS status, Comment AS comment \
          FROM POI_PT_ChangeRequestStatus_For_NPPlaces \
@@ -208,7 +208,7 @@ poi.postRequest = function (request, callback) {
   //   A simple insert will not work since we need to return the auto generated request id
   //   I use a stored procedure that returns a record set (of 1) with the 'NewRequestId'
   var sqlInsertChangeRequest = require('edge').func('sql', {
-    conectionString : poi.sqlServer,
+    connectionString : poi.sqlServer,
     source : "EXEC [dbo].[POI_PT_ChangeRequest_For_NPPlaces_Insert]"
   });
 
