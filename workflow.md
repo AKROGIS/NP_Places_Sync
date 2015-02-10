@@ -33,6 +33,7 @@ I'm assuming Option 1 is neither possible nor desired.
 
 * A database trigger logs changes in `POI_PT_ChangeLog_For_NPPlaces` table
   - Interested clients can review the changes via [SR#3](#sr3)
+  - Only changes to existance, name, type and geometry are triggers
 
 2) AKR periodically reviews open issues in `POI_PT_ChangeRequest_For_NPPlaces`
 
@@ -81,19 +82,22 @@ I'm assuming Option 1 is neither possible nor desired.
       - If the request succeeds, clear `AKR_Request_Id`
   
 5) Places system sync event (periodically run as cron job)
-  * Check on outstanding requests by finding all features (including deleted) in Places with an `AKR_Request_Id`
+  * Resubmit failed change requests
+    + find all features (including deleted) in Places with a negative `AKR_Request_Id`
     + If the id is `-2` (Cancel Pending) then resubmit the change request via [SR#1](#sr1)
       - the body of the change request is archived in `AKR_Request_JSON`
       - if the submit succeeds, then clear `AKR_Request_JSON` and `AKR_Request_Id`
     + If the id is `-1` (Pending) then resubmit the change request via [SR#1](#sr1)
       - the body of the change request is archived in `AKR_Request_JSON`
       - if the submit succeeds, then clear `AKR_Request_JSON` and save the returned request_Id in `AKR_Request_Id`
-    + For other non-null ids, get the status of the change request via [SR#2](#sr2)
+  * Check on status of outstanding requests
+    + find all features (including deleted) in Places with a positive `AKR_Request_Id`
+    + Get the status of the change request via [SR#2](#sr2)
       - If the status is `denied`
         * optional: create new attribute with denied comment and the requested state
         * revert the feature to the state pointed to by `AKR_Approved_State`
         * clear the `AKR_Request_Id` and `AKR_Approved_State`
-      - If the status is `approved`, Clear the `AKR_Request_Id` and `AKR_Approved_State` (feature will be updated in the next step)
+      - If the status is `approved`, Clear the `AKR_Request_Id` and `AKR_Approved_State` (feature's current state is now approved)
       - If the status is `partially approved` treat as denied  (feature will be updated in the next step)
       - Status should not be `cancelled`, but if it is, treat as denied
       - If the status is open (i.e. no related actions), then no action is required.
