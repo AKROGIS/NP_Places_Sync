@@ -76,8 +76,8 @@ I'm assuming Option 1 is neither possible nor desired.
   * if `AKR_Request_Id` is `-1` (Pending), then clear `AKR_Request_Id`
   * Otherwise
     + submit cancel change request via [SR#1](#sr1)
-      - for id, use `AKR_Feature_Id` if it exists, otherwise use the NP_Places_Id
-      - If the request fails, then place the sentinal "Cancel Pending" (-2) in `AKR_Request_Id`, and archive the request body in `AKR_Request_JSON`
+      - for id, use `AKR_Feature_Id` if it exists, otherwise use the *NP_Places_Id*
+      - If the request fails, then place the sentinal `-2` (Cancel Pending) in `AKR_Request_Id`, and archive the request body in `AKR_Request_JSON`
       - If the request succeeds, clear `AKR_Request_Id`
   
 5) Places system sync event (periodically run as cron job)
@@ -98,10 +98,10 @@ I'm assuming Option 1 is neither possible nor desired.
       - Status should not be `cancelled`, but if it is, treat as denied
       - If the status is open (i.e. no related actions), then no action is required.
   * Incorporate AKR changes
-    + Get the list of Feature Ids for all adds/deletes/updates since the last sync from the ChangeLog Service (SR#3)
+    + Get the list of feature `id`s for all `adds`/`deletes`/`updates` since the last sync via [SR#3](#sr3)
     + For each `id` in `adds`
       - get the features new properties via [SR#4](#sr4)
-      - if the feature has a Places ID (it originated in Places)
+      - if the feature has a Places ID (i.e. it originated in Places)
         * find the features in Places
         * update the `AKR_Feature_Id`
         * It had a `AKR_Request_Id` when it was created, so it is unlikely that there is a new change on the feature since it was approved
