@@ -31,11 +31,14 @@ I'm assuming Option 1 is neither possible nor desired.
 
 1) AKR makes changes to `POI_PT`
 
-* DB trigger logs changes in `POI_PT_ChangeLog_For_NPPlaces`
+* A database trigger logs changes in `POI_PT_ChangeLog_For_NPPlaces` table
+  - Interested clients can review the changes via [SR#3](#sr3)
 
 2) AKR periodically reviews open issues in `POI_PT_ChangeRequest_For_NPPlaces`
 
-* Action on a change request is logged in `POI_PT_ChangeRequestAction_For_NPPlaces` (An open change request is one without a related Change Request Action)
+* A client can submit a change request via [SR#1](#sr1)
+* Action on a change request is logged in `POI_PT_ChangeRequestAction_For_NPPlaces`
+  - An open change request is one without a related Change Request Action)
 * Action may result in a change to POI_PT (see item 1 above)
 
 3) Places user edits feature
@@ -138,7 +141,7 @@ They should be a system attributes, or at least hidden from the user to prevent 
 ### Services
 The following HTTP end points will be provided by AKR to support the workflow above
 
-####SR#1
+####<a name="sr1">SR#1</a>
 `POST poi/change/request`
 
 Request body:
@@ -176,7 +179,7 @@ Response:
     500 Internal Server Error
         {'code' : 300, 'error' : 'Database error', 'msg' : <varies> }         
 
-####SR#2
+####<a name="sr2">SR#2</a>
 `GET poi/change/request/<request_id>/status`
 
 Response:
@@ -188,7 +191,7 @@ Response:
     500 Internal Server Error
         {'code' : 300, 'error' : 'Database error', 'msg' : <varies> }         
     
-####SR#3
+####<a name="sr3">SR#3</a>
 `GET poi/changes?since=iso-date`
 
 Response:
@@ -204,7 +207,7 @@ Response:
 
 The lists contain AKR_Feature_Ids.
 
-####SR#4
+####<a name="sr4">SR#4</a>
 `GET poi/feature/<AKR_Feature_Id>`
 
 Response:
