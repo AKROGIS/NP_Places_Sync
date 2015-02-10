@@ -36,10 +36,10 @@ I'm assuming Option 1 is neither possible nor desired.
 
 2) AKR periodically reviews open issues in `POI_PT_ChangeRequest_For_NPPlaces`
 
-* A client can submit a change request via [SR#1](#sr1)
-* Action on a change request is logged in `POI_PT_ChangeRequestAction_For_NPPlaces` table
-  - An open change request is one without a related Change Request Action
-* Action may result in a change to POI_PT (see item 1 above)
+* A client can submit a change request (i.e. add a record to this table) via [SR#1](#sr1)
+* Action by AKR on a change request is logged in the `POI_PT_ChangeRequestAction_For_NPPlaces` table
+  - An open change request is one without a related change request action
+  - This action may result in a change to POI_PT (see item 1 above)
 
 3) Places user edits feature
   * If the user is trying to edit the AKR_* attributes, reject that part of the change
@@ -152,7 +152,7 @@ Request body:
         'feature' : {
             'id' : <The NP Places ID for adds, and the AKR feature ID for all others>,
             'name' : <name as text>,
-            'type' : <type as tex>,
+            'type' : <type as text>,
             'geometry : <esri JSON geometry object>
         }
     }
