@@ -1,0 +1,130 @@
+** TURN ON ARCHIVING IN FGDB OF UPLOADED DATA, ADD UPDATE TIMESTAMP TO METADATA
+??? CHANGES IN IS_EXTANT OF FEATURES
+      option 1) Push all features and use visibility attribute on osm element
+      option 2) changes in IS_EXTANT map to calls to add/delete 
+
+
+0) Inputs:
+  feature class
+  feature class type
+  timestamp of last check
+  list of tracked attributes for feature class type (get from translate.py)
+  schema_mapping for type  (translate.py)
+  field name of ObjectID
+  field name of OSM ID
+  element types for feature class type etype in {node,way,relation}
+  username/password
+  name of retry log
+  
+
+
+1a) push (feature class, timestamp, list(type))
+  get time sequential adds, deletes, 'updates to tracked attributes for type' since timestamp from feature class
+     => [({add,up,del}, OID, OSMID), ...]
+   // Adds/deletes/updates must be applied to OSM in same order they occur in feature class
+   if list is empty quit
+   "<?xml version="1.0" encoding="UTF-8"?>"
+   changeset_payload = "<osm><changeset><tag />...</changeset></osm>"
+   credentials <- LOGIN 
+   resp <- PUT /api/0.6/changeset/create credentials changeset_payload
+   if resp != OK  then log error and quit
+   changeset_id = resp.id
+   save timestamp for reference in next push
+   for each feature:
+     if feature.del {
+       OSM_payload = build_delete_payload(changeset_id, feature.OSMID, feature_class[feature.OID])
+       resp = DELETE /api/0.6/{etype(type)}/{feature.OSMID}
+       if resp != OK, write (del, OID, OSMID, res) to retry_log
+     }
+     if feature.del {
+       ??? CHANGES IN VISIBILITY OF FEATURES
+       resp = GET /api/0.6/{etype(type)}/{feature.OSMID}
+       if resp == OK {
+         OSM_payload = translate.py(changeset_id, resp.osm_element, feature_class[feature.OID])
+         resp2 = DELETE /api/0.6/{etype(type)}/{feature.osmid} OSM_payload
+         if resp2 != OK {
+           write (update-put, OID, OSMID, resp) to retry_log
+         }
+       } else {
+         write (update-get, OID, OSMID, resp) to retry_log
+       }
+     if feature.add {
+       OSM_payload = translate.py(changeset_id, empty, feature_class[feature.OID])
+       resp = PUT /api/0.6/{etype(type)}/create OSM_payload
+       if resp == OK {
+         add OSMID = response.id to feature class[ObjectID] in feature class.
+         // ??? can we write directly to default ???
+       } else {
+         write (add, OID, OSMID, res) to retry_log
+       }
+     }
+     if feature.update {
+       ??? CHANGES IN VISIBILITY OF FEATURES
+       resp = GET /api/0.6/{etype(type)}/{feature.OSMID}
+       if resp == OK {
+         OSM_payload = translate.py(changeset_id, resp.osm_element, feature_class[feature.OID])
+         resp2 = POST /api/0.6/{etype(type)}/{feature.osmid} OSM_payload
+         if resp2 != OK {
+           write (update-put, OID, OSMID, resp) to retry_log
+         }
+       } else {
+         write (update-get, OID, OSMID, resp) to retry_log
+       }
+     }
+   resp2 = PUT /api/0.6/changeset/{changeset_id}/close
+  if resp2 != OK {
+    write to error log
+    // None of the error conditions seem possible
+    // do not clear timestamp saved for next push, since individual changes should have been committed
+  }
+
+1b) push (feature class, timestamp, translation.config)
+  //new_xxx = [OID,...]
+  //deleted_xxx = [OID,OSMID]
+  //updated_xxx = [OID,OSMID]
+  new_lines <- get_new_lines(feature_class, translation_config)
+  new_points <- get_new_points(feature_class, translation_config)
+  updated_lines <- get_updated_lines(feature_class, translation_config)
+  updated_points <- get_updated_points(feature_class, translation_config)
+  deleted_lines <- get_deleted_lines(feature_class, translation_config)
+  deleted_points <- get_deleted_points(feature_class, translation_config)
+  
+   if all lists are empty quit
+   changeset_payload = "<osm><changeset><tag .../>...</changeset></osm>"
+   credentials <- LOGIN 
+   resp <- PUT /api/0.6/changeset/create credentials changeset_payload
+   if resp != OK  then log error and quit
+   changeset_id = resp.id
+   save timestamp for reference in next push
+   osm_xml <- "<osmChange version="0.3" generator="Osmosis"></osm>"
+   osm_xml <<- "<create></create>"
+   osm_xml <<- add_transform(new_points, feature_class, , translation_config)
+   osm_xml <<- add_way_nodes(new_lines, feature_class, , translation_config)
+   osm_xml <<- add_way_nodes(updated_lines, feature_class, , translation_config)
+   osm_xml <<- "<modify></modify>"
+   osm_xml <<- modify_transform(updated_points, feature_class, , translation_config)
+   osm_xml <<- modify_way_nodes(updated_lines, feature_class, , translation_config)
+   osm_xml <<- "<delete></delete>"
+   osm_xml <<- delete_transform(updated_points, feature_class, , translation_config)
+  osm_xml <<- delete_way_nodes(updated_lines, feature_class, , translation_config)
+   
+  resp2 = PUT /api/0.6/changeset/{changeset_id}/close
+  if resp2 != OK {
+    write to error log
+    // None of the error conditions seem possible
+    // do not clear timestamp saved for next push, since individual changes should have been committed
+  }
+
+1c) push (point feature class, timestamp, list(type))
+  //new_xxx = [OID,...]
+  //deleted_xxx = [OID,OSMID]
+  //updated_xxx = [OID,OSMID]
+  new_points <- get_new_points(feature_class, translation_config)
+  updated_points <- get_updated_points(feature_class, translation_config)
+  deleted_points <- get_deleted_points(feature_class, translation_config)
+
+2) Pull (feature class, timestamp, translation.config) 
+
+
+     
+     
