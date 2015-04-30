@@ -30,6 +30,8 @@ def filterTags(attrs):
 
     for gisname in namemap:
         if gisname in attrs:
-            tags[namemap[gisname]] = attrs[gisname].strip()
+            value = attrs[gisname].strip()
+            if value:
+                tags[namemap[gisname]] = value
                 
     return tags

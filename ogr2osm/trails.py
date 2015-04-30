@@ -26,12 +26,23 @@ def filterTags(attrs):
         'TRLSTATUS'  :'nps:trlstatus',  
         'TRLTYPE'    :'nps:trltype',  
         'TRLCLASS'   :'tracktype',  
-        'TRLUSES'    :'nps:trluses'
+        'TRLUSES'    :'nps:trluses',
+        #draft standard
+        'TRAILNAME'  :'name',  
+        'ALTNAMES'   :'nps:trlaltnames',  
+        'FEATTYPE'   :'nps:trlfeattype',  
+        'TRAILTYPE'  :'nps:trltype',  
+        'TRAILCLASS' :'tracktype',  
+        'TRAILSTATUS':'nps:trlstatus',  
+        'TRAILUSES'  :'nps:trluses'
+#        'VISACCESS'  :
     }
 
     for gisname in namemap:
         if gisname in attrs:
-            tags[namemap[gisname]] = attrs[gisname].strip()
+            value = attrs[gisname].strip()
+            if value:
+                tags[namemap[gisname]] = value
 
     trlclass = {
         'Unknown'                            : None,
