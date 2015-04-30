@@ -18,7 +18,7 @@ require 'yaml'
 auth={}
  
 puts "First, go register a new application at "
-puts "http://www.openstreetmap.org/oauth_clients/new"
+puts "http://localhost:3000/user/{{display_name}}/oauth_clients/new"
 puts "Tick the appropriate boxes"
 puts "Enter the consumer key you are assigned:"
 auth["consumer_key"] = gets.strip
@@ -29,7 +29,7 @@ puts "this instance of it with your user account."
  
 @consumer=OAuth::Consumer.new auth["consumer_key"], 
                               auth["consumer_secret"], 
-                              {:site=>"http://www.openstreetmap.org"}
+                              {:site=>"http://localhost:3000"}
  
 @request_token = @consumer.get_request_token
  
@@ -39,7 +39,7 @@ puts "When you've authorized that token, enter the verifier code you are assigne
 verifier = gets.strip                                                                                                                                                               
 puts "Converting request token into access token..."                                                                                                                                
 @access_token=@request_token.get_access_token(:oauth_verifier => verifier)                                                                                                          
- 
+
 auth["token"] = @access_token.token
 auth["token_secret"] = @access_token.secret
  
