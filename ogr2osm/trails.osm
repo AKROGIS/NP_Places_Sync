@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<osm version="0.6" upload="false" generator="uvmogr2osm">
+<node id="-2" lat="41.628150898" lon="-112.49126496" visible="true" />
+<node id="-3" lat="41.628157726" lon="-112.491259355" visible="true" />
+<node id="-4" lat="41.628160536" lon="-112.491257979" visible="true" />
+<node id="-5" lat="41.628180242" lon="-112.491280282" visible="true" />
+<node id="-6" lat="41.628198726" lon="-112.491299555" visible="true" />
+<node id="-7" lat="41.628212883" lon="-112.491326052" visible="true" />
+<node id="-8" lat="41.62822619" lon="-112.491348687" visible="true" />
+<node id="-9" lat="41.62823561" lon="-112.491379276" visible="true" />
+<node id="-10" lat="41.628249377" lon="-112.491421969" visible="true" />
+<node id="-11" lat="41.628258919" lon="-112.491457123" visible="true" />
+<node id="-12" lat="41.628268342" lon="-112.491494434" visible="true" />
+<node id="-13" lat="41.628278812" lon="-112.491527448" visible="true" />
+<node id="-14" lat="41.628290443" lon="-112.491554247" visible="true" />
+<node id="-15" lat="41.628298811" lon="-112.491589613" visible="true" />
+<node id="-16" lat="41.628309694" lon="-112.491618555" visible="true" />
+<node id="-17" lat="41.62832066" lon="-112.491641137" visible="true" />
+<node id="-18" lat="41.628336252" lon="-112.491647258" visible="true" />
+<node id="-19" lat="41.628336476" lon="-112.491643902" visible="true" />
+<node id="-21" lat="41.628465848" lon="-112.502552395" visible="true" />
+<node id="-22" lat="41.628456258" lon="-112.502583264" visible="true" />
+<node id="-23" lat="41.628449697" lon="-112.50263041" visible="true" />
+<node id="-24" lat="41.628445875" lon="-112.502674738" visible="true" />
+<node id="-25" lat="41.628437091" lon="-112.502719672" visible="true" />
+<node id="-26" lat="41.628426275" lon="-112.502775362" visible="true" />
+<node id="-27" lat="41.628420049" lon="-112.502824437" visible="true" />
+<node id="-28" lat="41.628417484" lon="-112.50288284" visible="true" />
+<node id="-29" lat="41.628416837" lon="-112.502932284" visible="true" />
+<node id="-30" lat="41.628411805" lon="-112.502986548" visible="true" />
+<node id="-31" lat="41.628407586" lon="-112.503033628" visible="true" />
+<node id="-32" lat="41.628408071" lon="-112.5030861" visible="true" />
+<node id="-33" lat="41.628407559" lon="-112.503139028" visible="true" />
+<node id="-34" lat="41.628411033" lon="-112.503190129" visible="true" />
+<node id="-35" lat="41.628416198" lon="-112.503235986" visible="true" />
+<node id="-36" lat="41.628413625" lon="-112.503281184" visible="true" />
+<node id="-37" lat="41.628417514" lon="-112.503335055" visible="true" />
+<node id="-38" lat="41.628419174" lon="-112.503380351" visible="true" />
+<node id="-39" lat="41.62842238" lon="-112.503431325" visible="true" />
+<node id="-40" lat="41.628418162" lon="-112.503485248" visible="true" />
+<node id="-41" lat="41.628392185" lon="-112.503522459" visible="true" />
+<node id="-42" lat="41.628362702" lon="-112.503559229" visible="true" />
+<node id="-43" lat="41.628334214" lon="-112.503588818" visible="true" />
+<node id="-44" lat="41.628301124" lon="-112.503612058" visible="true" />
+<node id="-45" lat="41.628265845" lon="-112.503637529" visible="true" />
+<node id="-46" lat="41.628234193" lon="-112.503661042" visible="true" />
+<node id="-47" lat="41.628198142" lon="-112.503690336" visible="true" />
+<node id="-48" lat="41.628165745" lon="-112.50370891" visible="true" />
+<node id="-49" lat="41.628133189" lon="-112.5037258" visible="true" />
+<node id="-50" lat="41.628097737" lon="-112.503736861" visible="true" />
+<node id="-51" lat="41.628063384" lon="-112.503746627" visible="true" />
+<node id="-52" lat="41.628028621" lon="-112.503760104" visible="true" />
+<node id="-53" lat="41.627992505" lon="-112.503766828" visible="true" />
+<node id="-54" lat="41.627959684" lon="-112.503776509" visible="true" />
+<node id="-55" lat="41.627922083" lon="-112.503786559" visible="true" />
+<node id="-56" lat="41.627893928" lon="-112.503797549" visible="true" />
+<node id="-57" lat="41.627869216" lon="-112.503813901" visible="true" />
+<way id="-1" visible="true"><nd ref="-2" /><nd ref="-3" /><nd ref="-4" /><nd ref="-5" /><nd ref="-6" /><nd ref="-7" /><nd ref="-8" /><nd ref="-9" /><nd ref="-10" /><nd ref="-11" /><nd ref="-12" /><nd ref="-13" /><nd ref="-14" /><nd ref="-15" /><nd ref="-16" /><nd ref="-17" /><nd ref="-18" /><nd ref="-19" /><tag k="snowmobile" v="no" /><tag k="atv" v="no" /><tag k="horse" v="no" /><tag k="nps:source_id" v="{04CFBB76-4B0E-4AD0-AF45-03A246DB9EFC}" /><tag k="nps:regioncode" v="IMR" /><tag k="nps:xyerror" v="" /><tag k="nps:restriction" v="Unrestricted" /><tag k="nps:sourcescale" v="" /><tag k="nps:isextant" v="True" /><tag k="nps:mapmethod" v="Unknown" /><tag k="nps:groupcode" v="" /><tag k="nps:unitname" v="GOSP" /><tag k="note" v="" /><tag k="source" v="" /><tag k="motorcycle" v="no" /><tag k="nps:createdate" v="2014/07/31 00:00:00" /><tag k="nps:editdate" v="2015/04/03 00:00:00" /><tag k="nps:sourcedate" v="2014/07/31 00:00:00" /><tag k="nps:unit_code" v="GOSP" /><tag k="highway" v="path" /><tag k="bicycle" v="no" /></way>
+<way id="-20" visible="true"><nd ref="-21" /><nd ref="-22" /><nd ref="-23" /><nd ref="-24" /><nd ref="-25" /><nd ref="-26" /><nd ref="-27" /><nd ref="-28" /><nd ref="-29" /><nd ref="-30" /><nd ref="-31" /><nd ref="-32" /><nd ref="-33" /><nd ref="-34" /><nd ref="-35" /><nd ref="-36" /><nd ref="-37" /><nd ref="-38" /><nd ref="-39" /><nd ref="-40" /><nd ref="-41" /><nd ref="-42" /><nd ref="-43" /><nd ref="-44" /><nd ref="-45" /><nd ref="-46" /><nd ref="-47" /><nd ref="-48" /><nd ref="-49" /><nd ref="-50" /><nd ref="-51" /><nd ref="-52" /><nd ref="-53" /><nd ref="-54" /><nd ref="-55" /><nd ref="-56" /><nd ref="-57" /><tag k="snowmobile" v="no" /><tag k="atv" v="no" /><tag k="horse" v="no" /><tag k="nps:source_id" v="{7AD9C90A-D499-46EB-865E-5791D01563EB}" /><tag k="nps:regioncode" v="IMR" /><tag k="nps:xyerror" v="" /><tag k="nps:restriction" v="Unrestricted" /><tag k="nps:sourcescale" v="" /><tag k="nps:isextant" v="True" /><tag k="nps:mapmethod" v="Unknown" /><tag k="nps:groupcode" v="" /><tag k="nps:unitname" v="GOSP" /><tag k="note" v="" /><tag k="source" v="" /><tag k="motorcycle" v="no" /><tag k="nps:createdate" v="2014/07/31 00:00:00" /><tag k="nps:editdate" v="2015/04/03 00:00:00" /><tag k="nps:sourcedate" v="2014/07/31 00:00:00" /><tag k="nps:unit_code" v="GOSP" /><tag k="highway" v="path" /><tag k="bicycle" v="no" /></way>
+</osm>

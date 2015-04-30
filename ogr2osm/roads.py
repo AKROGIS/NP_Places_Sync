@@ -1,7 +1,9 @@
 import generic
 
 def filterTags(attrs):
-    tags = generic.filtertags(attrs)
+    if not attrs:
+        return
+    tags = generic.filterTags(attrs)
     
     #defaults
     tags['highway'] = 'road'
@@ -64,7 +66,7 @@ def filterTags(attrs):
         
     for gisname in namemap:
         if gisname in attrs:
-            tags[namemap[gis]] = attrs[gis].strip()
+            tags[namemap[gisname]] = attrs[gisname].strip()
         
     if 'RDCLASS' in attrs and attrs['RDCLASS']:
         class_value = attrs['RDCLASS'].strip()

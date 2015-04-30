@@ -1,107 +1,136 @@
+# on the Mac,
+# brew install gdal 
+# sudo pip install GDAL
+
 import generic
 
 def filterTags(attrs):
-    tags = generic.filtertags(attrs)
+    if not attrs:
+        return
+    tags = generic.filterTags(attrs)
+    
+    print attrs
     
     #defaults
     tags['highway'] = 'path'
-    tags['oneway'] = 'no'
+    tags['horse'] = 'no'
+    tags['bicycle'] = 'no'
+    tags['motorcycle'] = 'no'
+    tags['atv'] = 'no'
+    tags['snowmobile'] = 'no'
 
-#FIXME renderer uses name for labeling, should we put label in name?
     namemap = {
         'TRLNAME'    :'name',  
         'TRLALTNAMES':'nps:trlaltnames',  
         'TRLFEATTYPE':'nps:trlfeattype',  
         'TRLSTATUS'  :'nps:trlstatus',  
-        'TRLTYPE'   :'nps:trltype',  
+        'TRLTYPE'    :'nps:trltype',  
         'TRLCLASS'   :'tracktype',  
-        'ROUTEID'   :'nps:routeid',  
-        'RTENUMBER' :'nps:rtenumber'} 
-    
-    status = {
-        'Existing'          :('yes',None), #access,highway
-        'Decommissioned'    :('no',None),
-        'Temporarily Closed':('no',None),
-        'Proposed'          :('no','proposed'), # conflict with class
-        'Planned'           :('no','proposed'), # conflict with class
-        'Unknown'           :('no',None)}
+        'TRLUSES'    :'nps:trluses'
+    }
 
-# FIXME: which governs highway tag from class or status?
-# I think it should be status, so it goes second    
-    
-    rclass = {
-        'Unknown'  :'road', #highway
-        'Primary'  :'primary',
-#       'Primary'  :'primary_link',
-        'Secondary':'secondary',
-#       'Secondary':'secondary_link',
-#       'Local'    :'tertiary',
-#       'Local'    :'tertiary_link',
-        'Local'    :'residential',
-#       'Local'    :'trunk',
-#       'Local'    :'trunk_link',
-#       'Local'    :'unclassified',
-        '4WD'      :'road', #4wd_only=yes
-        'Service'  :'service',
-        'Private'  :'road'} #access=private
-                
-    surface = {
-        'Asphalt'       :'asphalt',
-        'Concrete'      :'concrete',
-        'Brick/Pavers'  :'paving_stones',
-        'Cobblestone'   :'cobblestone',
-        'Gravel'        :'gravel',
-        'Sand'          :'sand',
-        'Native or Dirt':'ground',
-        'Unpaved Other' :'unpaved',
-        'Paved Other'   :'paved',
-        'Unknown'       :None}
-        
-    oneway = {
-        'With Digitized'   :'yes',
-        'Against Digitized':'-1'}
-#       'NULL'             :'no'}
-        
     for gisname in namemap:
         if gisname in attrs:
-            tags[namemap[gis]] = attrs[gis].strip()
-        
-    if 'TLCLASS' in attrs and attrs['TLCLASS']:
-        class_value = attrs['TLCLASS'].strip()
-        for gisclass in rclass:
-            if gisclass == class_value:
-                osmclass = rclass[gis_class]
-                if osmclass:
-                    tags['highway'] = osmclass
-        if class_value == '4WD':
-            tags['4wd_only'] = 'yes'
-        if class_value == 'Private':
-            tags['access'] = 'private'
+            tags[namemap[gisname]] = attrs[gisname].strip()
 
-    if 'TLSURFACE' in attrs and attrs['TLSURFACE']:
-        surface_value = attrs['TLSURFACE'].strip()
-        for gissurface in surface:
-            if gissurface == surface_value:
-                osmsurface = surface[gis_surface]
-                if osmsurface:
-                    tags['surface'] = osmsurface
-        
-    if 'ONEWAY' in attrs and attrs['ONEWAY']:
-        oneway_value = attrs['ONEWAY'].strip()
-        for gisoneway in oneway:
-            if gisoneway == oneway_value:
-                osmoneway = oneway[gis_oneway]
-                if osmoneway:
-                    tags['oneway'] = osmoneway
-        
-    if 'TLSTATUS' in attrs and attrs['TLSTATUS']:
-        status_value = attrs['TLSTATUS'].strip()
-        for gisstatus in status:
-            if gisstatus == status_value:
-                osmstatus = status[gis_status]
-                if osmstatus[0]:
-                    tags['access'] = osmstatus[0]
-                if osmstatus[1]:
-                    tags['highway'] = osmstatus[1]
-        
+    trlclass = {
+        'Unknown'                            : None,
+        'Trail Class 1: Minimally Developed' :'grade5',
+        'Trail Class 2: Moderately Developed':'grade4',
+        'Trail Class 3: Developed'           :'grade3',
+        'Trail Class 4: Highly Developed'    :'grade2',
+        'Trail Class 5: Fully Developed'     :'grade1'
+    }
+                
+    if 'TRLCLASS' in attrs and attrs['TRLCLASS']:
+        class_value = attrs['TRLCLASS'].strip()
+        for gis_class in trlclass:
+            if gis_class == class_value:
+                osm_class = trlclass[gis_class]
+                if osm_class:
+                    tags['tracktype'] = osm_class
+
+    # TRLUSES is a pipe (|) separated list of uses    
+    if 'TRLUSES' in attrs and attrs['TRLUSES']:
+        if 'Hiker/Pedestrian' in attrs['TRLUSES']:
+            tags['highway'] = 'path'
+            tags['foot'] = 'yes'
+        if 'Pack and Saddle' in attrs['TRLUSES']:
+            tags['highway'] = 'track'
+            tags['horse'] = 'yes'
+        if 'Bicycle' in attrs['TRLUSES']:
+            tags['highway'] = 'track'
+            tags['bicycle'] = 'yes'
+        if 'Motorcycle' in attrs['TRLUSES']:
+            tags['highway'] = 'track'
+            tags['motorcycle'] = 'yes'
+        if 'All-Terrain Vehicle' in attrs['TRLUSES']:
+            tags['highway'] = 'track'
+            tags['atv'] = 'yes'
+        if 'Four-Wheel Drive Vehicle > 50" in Tread Width' in attrs['TRLUSES']:
+            tags['highway'] = 'track'
+            tags['4wd_only'] = 'yes'
+        if 'Cross-Country Ski' in attrs['TRLUSES']:
+            tags['highway'] = 'path'
+            tags['piste:type'] = 'nordic'
+        if 'Downhill Ski' in attrs['TRLUSES']:
+            tags['highway'] = 'path'
+            tags['piste:type'] = 'downhill'
+        if 'Dog Sled' in attrs['TRLUSES']:
+            tags['highway'] = 'track'
+            tags['piste:type'] = 'sleigh'
+        if 'Snowshoe' in attrs['TRLUSES']:
+            tags['highway'] = 'path'
+            tags['piste:type'] = 'hike'
+        if 'Snowmobile' in attrs['TRLUSES']:
+            tags['highway'] = 'track'
+            tags['snowmobile'] = 'yes'
+        if 'Motorized Watercraft' in attrs['TRLUSES']:
+            tags['motorboat'] = 'yes'
+        if 'Non-Motorized Watercraft' in attrs['TRLUSES']:
+            tags['canoe'] = 'yes'
+    
+    if 'TRLUSE_FOOT' in attrs and attrs['TRLUSE_FOOT'] == 'Yes':
+		tags['highway'] = 'path'
+		tags['foot'] = 'yes'
+    if 'TRLUSE_HORSE' in attrs and attrs['TRLUSE_HORSE'] == 'Yes':
+		tags['highway'] = 'track'
+		tags['horse'] = 'yes'
+    if 'TRLUSE_BICYCLE' in attrs and attrs['TRLUSE_BICYCLE'] == 'Yes':
+		tags['highway'] = 'track'
+		tags['bicycle'] = 'yes'
+    if 'TRLUSE_MOTORCYCLE' in attrs and attrs['TRLUSE_MOTORCYCLE'] == 'Yes':
+		tags['highway'] = 'track'
+		tags['motorcycle'] = 'yes'
+    if 'TRLUSE_ATV' in attrs and attrs['TRLUSE_ATV'] == 'Yes':
+		tags['highway'] = 'track'
+		tags['atv'] = 'yes'
+    if 'TRLUSE_4WD' in attrs and attrs['TRLUSE_4WD'] == 'Yes':
+		tags['highway'] = 'track'
+		tags['4wd_only'] = 'yes'
+    if 'TRLUSE_NORDIC' in attrs and attrs['TRLUSE_NORDIC'] == 'Yes':
+		tags['highway'] = 'path'
+		tags['piste:type'] = 'nordic'
+    if 'TRLUSE_DOWNHILL' in attrs and attrs['TRLUSE_DOWNHILL'] == 'Yes':
+		tags['highway'] = 'path'
+		tags['piste:type'] = 'downhill'
+    if 'TRLUSE_DOGSLED' in attrs and attrs['TRLUSE_DOGSLED'] == 'Yes':
+		tags['highway'] = 'track'
+		tags['piste:type'] = 'sleigh'
+    if 'TRLUSE_SNOWSHOE' in attrs and attrs['TRLUSE_SNOWSHOE'] == 'Yes':
+		tags['highway'] = 'path'
+		tags['piste:type'] = 'hike'
+    if 'TRLUSE_SNOWMOBILE' in attrs and attrs['TRLUSE_SNOWMOBILE'] == 'Yes':
+		tags['highway'] = 'track'
+		tags['snowmobile'] = 'yes'
+    if 'TRLUSE_MOTORBOAT' in attrs and attrs['TRLUSE_MOTORBOAT'] == 'Yes':
+		tags['motorboat'] = 'yes'
+    if 'TRLUSE_CANOE' in attrs and attrs['TRLUSE_CANOE'] == 'Yes':
+		tags['canoe'] = 'yes'
+            
+    if 'TRLFEATTYPE' in attrs and attrs['TRLFEATTYPE']:
+        if 'Sidewalk Centerline' == attrs['TRLFEATTYPE']:
+            tags['highway'] = 'footway'
+            tags['footway'] = 'sidewalk'
+
     return tags
