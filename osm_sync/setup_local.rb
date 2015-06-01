@@ -19,7 +19,7 @@ auth={}
  
 puts "First, go register a new application at "
 puts "http://localhost:3000/user/{{display_name}}/oauth_clients/new"
-puts "Tick the appropriate boxes"
+puts "Login and tick the appropriate boxes"
 puts "Enter the consumer key you are assigned:"
 auth["consumer_key"] = gets.strip
 puts "Enter the consumer secret you are assigned:"

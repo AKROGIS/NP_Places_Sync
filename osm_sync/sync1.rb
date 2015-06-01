@@ -39,7 +39,7 @@ def test_dev
 	auth = YAML.load(File.open('dev_auth.yaml'))
 	@consumer=OAuth::Consumer.new auth['consumer_key'], 
                                   auth['consumer_secret'], 
-                                  {:site=>"http://api06.dev.openstreetmap.org"}
+                                  {:site=>"http://dev.openstreetmap.org"}
 	# Create the access_token for all traffic
 	return OAuth::AccessToken.new(@consumer, auth['token'], auth['token_secret'])  
 end
@@ -112,9 +112,10 @@ def delete(id)
 end
 
 
-nid = "3"
-@access_token = test_local()
+#@access_token = test_local()
+@access_token = test_dev()
 #puts fixnode(getnode(nid),"345678")
-#add
+add
+#nid = "3"
 #update(nid)
-delete(nid)
+#delete(nid)

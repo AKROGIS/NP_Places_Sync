@@ -1,6 +1,6 @@
 # requests_oauthlib is needed
 # sudo easy_install pip
-# install requests requests_oauthlib
+# sudo pip install requests requests_oauthlib
 
 
 from requests_oauthlib import OAuth1Session
@@ -10,20 +10,20 @@ import xml.etree.ElementTree as ET
 # (i.e. OSM) and authorization from the user for whom you wish to retrieve resources for.
 # You can see an example of this workflow in sync1.rb.
 
-secrets = {
-  'consumer_key': '75lESMsS2yhggNkT3haa63VwXDkdSg332G3er6JD',
-  'consumer_secret': 'RDcGpLhwmsoOfP0sCXRVv0tK0dsI8XAwOrJJCxPl',
-  'token': 'KPtzprdFFF01xSWBUsCdG7rPACeMVjb3ImGCtP4G',
-  'token_secret': 'fngqrjVXPFCQSscSfUD6Bk9vdga5oE16M6qPwhK6'
+from secrets import *
+
+urls = {
+	'local': 'http://localhost:3000',
+	'live': 'http://www.openstreetmap.org',
+	'dev': 'http://api06.dev.openstreetmap.org'
 }
 
-
-def setupLocal():
-  req = OAuth1Session(secrets['consumer_key'],
-                      client_secret=secrets['consumer_secret'],
-                      resource_owner_key=secrets['token'],
-                      resource_owner_secret=secrets['token_secret'])
-  url = "http://localhost:3000"
+def setup(site):
+  req = OAuth1Session(secrets[site]['consumer_key'],
+                      client_secret=secrets[site]['consumer_secret'],
+                      resource_owner_key=secrets[site]['token'],
+                      resource_owner_secret=secrets[site]['token_secret'])
+  url = urls[site]
   return (req,url)
 
 
@@ -115,10 +115,11 @@ def delete(req,root,id):
         print 'Closed Changeset #'+cid
 
 
-r,root = setupLocal()
+r,root = setup('dev')
 #print root
 #print r
 
 #add(r,root)
-#update(r,root,"2")
-delete(r,root,"2")
+nid = "4299389012"
+#update(r,root,nid)
+delete(r,root,nid)
