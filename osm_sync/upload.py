@@ -20,16 +20,33 @@ def setup(site):
     access_token = secrets[site]['token']
     access_secret = secrets[site]['token_secret']
     if not access_secret:
-        # Get request token
-        # Use request token to authorize
-        # Once authorized get access token
-        access_token = None
-        access_secret = None
+        # get request token
+        request_url = url + '/oauth/request_token'
+        oauth = OAuth1Session(client_token, client_secret=client_secret)
+        fetch_response = oauth.fetch_request_token(request_url)
+        request_token = fetch_response['oauth_token']
+        request_secret = fetch_response['oauth_token_secret']
+
+        # authorize
+        verifier = secrets[site]['verifier']
+        oauth = OAuth1Session(client_token,
+                              client_secret=client_secret,
+                              resource_owner_key=request_token,
+                              resource_owner_secret=request_secret,
+                              verifier=verifier)
+
+        # get access tokens
+        access_url = url + '/oauth/access_token'
+        fetch_response = oauth.fetch_access_token(access_url)
+        access_token = fetch_response['oauth_token']
+        access_secret = fetch_response['oauth_token_secret']
+
+        # cache access_tokens
 
     oauth = OAuth1Session(client_token,
-                        client_secret=client_secret,
-                        resource_owner_key=access_token,
-                        resource_owner_secret=access_secret)
+                          client_secret=client_secret,
+                          resource_owner_key=access_token,
+                          resource_owner_secret=access_secret)
     return oauth, url
 
 
@@ -58,7 +75,7 @@ def uploadchangeset(oauth, root, cid, change):
     else:
         data = resp.text
         print "Uploaded Changeset #", cid
-        #print "response",data
+        # print "response",data
     return data
 
 
@@ -97,7 +114,7 @@ def makeidmap(idxml, uploadfile):
 
 
 def main():
-    oauth, root = setup('dev')
+    oauth, root = setup('local')
     infile = './test_POI.osm'
     outfile = './test_POI_ids.csv'
     cid = openchangeset(oauth, root)
