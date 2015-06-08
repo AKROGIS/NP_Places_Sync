@@ -26,20 +26,20 @@ def setup(site):
         access_token = None
         access_secret = None
 
-    req = OAuth1Session(client_token,
+    oauth = OAuth1Session(client_token,
                         client_secret=client_secret,
                         resource_owner_key=access_token,
                         resource_owner_secret=access_secret)
-    return req, url
+    return oauth, url
 
 
-def openchangeset(req, root):
+def openchangeset(oauth, root):
     cid = None
     osm_changeset_payload = '<osm><changeset>' +\
                             '<tag k="created_by" v="npsarc2osm"/>' +\
                             '<tag k="comment" v="testing"/>' +\
                             '</changeset></osm>'
-    resp = req.put(root+'/api/0.6/changeset/create', data=osm_changeset_payload, headers={'Content-Type': 'text/xml'})
+    resp = oauth.put(root+'/api/0.6/changeset/create', data=osm_changeset_payload, headers={'Content-Type': 'text/xml'})
     if resp.status_code != 200:
         print "failed to open changeset", resp.status_code, resp.text
     else:
@@ -48,11 +48,11 @@ def openchangeset(req, root):
     return cid
 
 
-def uploadchangeset(req, root, cid, change):
+def uploadchangeset(oauth, root, cid, change):
     data = None
     path = root+'/api/0.6/changeset/' + cid + '/upload'
     print 'POST', path
-    resp = req.post(path, data=change, headers={'Content-Type': 'text/xml'})
+    resp = oauth.post(path, data=change, headers={'Content-Type': 'text/xml'})
     if resp.status_code != 200:
         print "Failed to upload changeset", resp.status_code, resp.text
     else:
@@ -62,8 +62,8 @@ def uploadchangeset(req, root, cid, change):
     return data
 
 
-def closechangeset(req, root, cid):
-    req.put(root+'/api/0.6/changeset/' + cid + '/close')
+def closechangeset(oauth, root, cid):
+    oauth.put(root+'/api/0.6/changeset/' + cid + '/close')
     print 'Closed Changeset #', cid
 
 
@@ -97,13 +97,13 @@ def makeidmap(idxml, uploadfile):
 
 
 def main():
-    req, root = setup('dev')
+    oauth, root = setup('dev')
     infile = './test_POI.osm'
     outfile = './test_POI_ids.csv'
-    cid = openchangeset(req, root)
+    cid = openchangeset(oauth, root)
     if cid:
-        resp = uploadchangeset(req, root, cid, fixchangefile(cid, infile))
-        closechangeset(req, root, cid)
+        resp = uploadchangeset(oauth, root, cid, fixchangefile(cid, infile))
+        closechangeset(oauth, root, cid)
         if resp:
             idmap = makeidmap(resp, infile)
             if idmap:
