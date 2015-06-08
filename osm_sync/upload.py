@@ -9,22 +9,27 @@ import xml.etree.ElementTree as ET
 # Before accessing resources you will need to obtain a few credentials from your provider
 # (i.e. OSM) and authorization from the user for whom you wish to retrieve resources for.
 # You can see an example of this workflow in sync1.rb.
-
+# For testing, these credentials are cached in the secrets file
 from secrets import *
-
-urls = {
-    'local': 'http://localhost:3000',
-    'live': 'http://www.openstreetmap.org',
-    'dev': 'http://api06.dev.openstreetmap.org'
-}
 
 
 def setup(site):
-    req = OAuth1Session(secrets[site]['consumer_key'],
-                        client_secret=secrets[site]['consumer_secret'],
-                        resource_owner_key=secrets[site]['token'],
-                        resource_owner_secret=secrets[site]['token_secret'])
-    url = urls[site]
+    url = secrets[site]['url']
+    client_token = secrets[site]['consumer_key']
+    client_secret = secrets[site]['consumer_secret']
+    access_token = secrets[site]['token']
+    access_secret = secrets[site]['token_secret']
+    if not access_secret:
+        # Get request token
+        # Use request token to authorize
+        # Once authorized get access token
+        access_token = None
+        access_secret = None
+
+    req = OAuth1Session(client_token,
+                        client_secret=client_secret,
+                        resource_owner_key=access_token,
+                        resource_owner_secret=access_secret)
     return req, url
 
 
