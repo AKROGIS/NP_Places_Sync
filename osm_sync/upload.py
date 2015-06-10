@@ -1,6 +1,8 @@
 # requests_oauthlib is needed
 # sudo easy_install pip
 # sudo pip install requests requests_oauthlib
+# on windows:
+#   c:\python27\ArcGIS10.3\Scripts\pip install requests_oauthlib
 
 
 from requests_oauthlib import OAuth1Session
