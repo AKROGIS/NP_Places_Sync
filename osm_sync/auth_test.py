@@ -9,10 +9,10 @@ def test():
     request = True
     authorize = True
     access = True
-    url = secrets['local']['url']
-    user = secrets['local']['user']
-    username = secrets['local']['username']
-    request_tokens = secrets['local']['request_tokens']
+    url = secrets['places']['url']
+    user = secrets['places']['user']
+    username = secrets['places']['username']
+    request_tokens = secrets['places']['request_tokens']
 
     if request:
         request_url = url + '/oauth/request_token'
