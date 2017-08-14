@@ -6,13 +6,14 @@ import json
 
 
 def test():
+    site = 'places' # or 'local'
     request = True
     authorize = True
     access = True
-    url = secrets['local']['url']
-    user = secrets['local']['user']
-    username = secrets['local']['username']
-    request_tokens = secrets['local']['request_tokens']
+    url = secrets[site]['url']
+    user = secrets[site]['user']
+    username = secrets[site]['username']
+    request_tokens = secrets[site]['request_tokens']
 
     if request:
         request_url = url + '/oauth/request_token'
