@@ -2,7 +2,8 @@ NP_Places_Sync
 ==============
 
 **This project has been archived. It was largely experimental and was eventually superceeded by
-[arc2places](https://github.com/nationalparkservice/arc2places).**
+[arc2places](https://github.com/nationalparkservice/arc2places) and
+[NGP-Data-Aggregator](https://github.com/nationalparkservice/NGP-Data-Aggregator).**
 
 An internal Park Serivce project to sync authoritative *Places of Interest* maintained in the 
 Alaska Region enterprise GIS system with with the crowd sourced data in the
